@@ -281,7 +281,7 @@ abstract class AbstractRestfulController extends AbstractController
             // HEAD
             case 'head':
                 $id = $this->getIdentifier($routeMatch, $request);
-                if ($id !== false) {
+                if ($id === false) {
                     $id = null;
                 }
                 $action = 'head';
@@ -359,6 +359,8 @@ abstract class AbstractRestfulController extends AbstractController
     /**
      * Check if request has certain content type
      *
+     * @param  Request $request
+     * @param  string|null $contentType
      * @return boolean
      */
     public function requestHasContentType(Request $request, $contentType = '')

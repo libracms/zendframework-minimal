@@ -56,7 +56,7 @@ class BlockCipher implements EncryptionAlgorithmInterface
     /**
      * Class constructor
      *
-     * @param  string|array|\Traversable $options Encryption Options
+     * @param  string|array|Traversable $options Encryption Options
      * @throws Exception\RuntimeException
      * @throws Exception\InvalidArgumentException
      */
@@ -250,8 +250,6 @@ class BlockCipher implements EncryptionAlgorithmInterface
         try {
             $encrypted = $this->blockCipher->encrypt($value);
         } catch (CryptException\InvalidArgumentException $e) {
-            throw new Exception\InvalidArgumentException($e->getMessage());
-        } catch (SymmetricException\InvalidArgumentException $e) {
             throw new Exception\InvalidArgumentException($e->getMessage());
         }
         return $encrypted;

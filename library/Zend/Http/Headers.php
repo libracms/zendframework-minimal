@@ -25,7 +25,7 @@ use Zend\Loader\PluginClassLocator;
 class Headers implements Countable, Iterator
 {
     /**
-     * @var \Zend\Loader\PluginClassLoader
+     * @var PluginClassLoader
      */
     protected $pluginClassLoader = null;
 
@@ -126,7 +126,7 @@ class Headers implements Countable, Iterator
      */
     public function addHeaders($headers)
     {
-        if (!is_array($headers) && !$headers instanceof \Traversable) {
+        if (!is_array($headers) && !$headers instanceof Traversable) {
             throw new Exception\InvalidArgumentException(sprintf(
                 'Expected array or Traversable; received "%s"',
                 (is_object($headers) ? get_class($headers) : gettype($headers))

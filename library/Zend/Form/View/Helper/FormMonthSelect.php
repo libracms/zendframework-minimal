@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -73,7 +73,7 @@ class FormMonthSelect extends AbstractHelper
         }
 
         $selectHelper = $this->getSelectElementHelper();
-        $pattern      = $this->parsePattern();
+        $pattern      = $this->parsePattern($element->shouldRenderDelimiters());
 
         // The pattern always contains "day" part and the first separator, so we have to remove it
         unset($pattern['day']);
@@ -90,16 +90,19 @@ class FormMonthSelect extends AbstractHelper
             $yearElement->setEmptyOption('');
         }
 
-        $markup = array();
-        $markup[$pattern['month']] = $selectHelper->render($monthElement);
-        $markup[$pattern['year']]  = $selectHelper->render($yearElement);
+        $data = array();
+        $data[$pattern['month']] = $selectHelper->render($monthElement);
+        $data[$pattern['year']]  = $selectHelper->render($yearElement);
 
-        $markup = sprintf(
-            '%s %s %s',
-            $markup[array_shift($pattern)],
-            array_shift($pattern), // Delimiter
-            $markup[array_shift($pattern)]
-        );
+        $markup = '';
+        foreach ($pattern as $key => $value) {
+            // Delimiter
+            if (is_numeric($key)) {
+                $markup .= $value;
+            } else {
+                $markup .= $data[$value];
+            }
+        }
 
         return $markup;
     }
@@ -145,23 +148,24 @@ class FormMonthSelect extends AbstractHelper
     /**
      * Parse the pattern
      *
+     * @param  bool $renderDelimiters
      * @return array
      */
-    protected function parsePattern()
+    protected function parsePattern($renderDelimiters = true)
     {
         $pattern    = $this->getPattern();
-        $pregResult = preg_split('/([ -,.\/]+)/', $pattern, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+        $pregResult = preg_split("/([ -,.\/]*(?:'[a-zA-Z]+')*[ -,.\/]+)/", $pattern, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
         $result = array();
         foreach ($pregResult as $value) {
-            if (stripos($value, 'd') !== false) {
+            if (stripos($value, "'") === false && stripos($value, 'd') !== false) {
                 $result['day'] = $value;
-            } elseif (stripos($value, 'm') !== false) {
+            } elseif (stripos($value, "'") === false && stripos($value, 'm') !== false) {
                 $result['month'] = $value;
-            } elseif (stripos($value, 'y') !== false) {
+            } elseif (stripos($value, "'") === false && stripos($value, 'y') !== false) {
                 $result['year'] = $value;
-            } else {
-                $result[] = $value;
+            } elseif ($renderDelimiters) {
+                $result[] = str_replace("'", '', $value);
             }
         }
 

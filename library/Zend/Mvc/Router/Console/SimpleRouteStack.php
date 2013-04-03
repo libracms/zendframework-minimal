@@ -22,7 +22,7 @@ class SimpleRouteStack extends BaseSimpleRouteStack
     /**
      * init(): defined by SimpleRouteStack.
      *
-     * @see    SimpleRouteStack::init()
+     * @see    BaseSimpleRouteStack::init()
      */
     protected function init()
     {
@@ -39,7 +39,7 @@ class SimpleRouteStack extends BaseSimpleRouteStack
     /**
      * addRoute(): defined by RouteStackInterface interface.
      *
-     * @see    RouteStack::addRoute()
+     * @see    RouteStackInterface::addRoute()
      * @param  string  $name
      * @param  mixed   $route
      * @param  integer $priority
@@ -57,8 +57,8 @@ class SimpleRouteStack extends BaseSimpleRouteStack
     /**
      * routeFromArray(): defined by SimpleRouteStack.
      *
-     * @see    SimpleRouteStack::routeFromArray()
-     * @param  array|\Traversable $specs
+     * @see    BaseSimpleRouteStack::routeFromArray()
+     * @param  array|Traversable $specs
      * @return RouteInterface
      * @throws Exception\InvalidArgumentException
      * @throws Exception\RuntimeException

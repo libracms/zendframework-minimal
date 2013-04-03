@@ -111,7 +111,7 @@ class ModuleAutoloader implements SplAutoloader
      * Sets the class map used to speed up the module autoloading.
      *
      * @param  array $classmap
-     * @return ModuleLoader
+     * @return ModuleAutoloader
      */
     public function setModuleClassMap(array $classmap)
     {
@@ -326,7 +326,7 @@ class ModuleAutoloader implements SplAutoloader
             throw new Exception\InvalidArgumentException(
                 'Parameter to \\Zend\\Loader\\ModuleAutoloader\'s '
                 . 'registerPaths method must be an array or '
-                . 'implement the \\Traversable interface'
+                . 'implement the Traversable interface'
             );
         }
 

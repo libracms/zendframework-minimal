@@ -81,7 +81,7 @@ class Fieldset extends Element implements FieldsetInterface
      * Set options for a fieldset. Accepted options are:
      * - use_as_base_fieldset: is this fieldset use as the base fieldset?
      *
-     * @param  array|\Traversable $options
+     * @param  array|Traversable $options
      * @return Element|ElementInterface
      * @throws Exception\InvalidArgumentException
      */
@@ -520,7 +520,7 @@ class Fieldset extends Element implements FieldsetInterface
 
             $element = $this->byName[$name];
 
-            if($element instanceof FieldsetInterface && $element->allowValueBinding()) {
+            if ($element instanceof FieldsetInterface && $element->allowValueBinding()) {
                 $value = $element->bindValues($value);
             }
 

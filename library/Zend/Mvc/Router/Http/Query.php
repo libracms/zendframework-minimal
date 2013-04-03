@@ -15,10 +15,16 @@ use Zend\Mvc\Router\Http\RouteMatch;
 use Zend\Stdlib\ArrayUtils;
 use Zend\Stdlib\RequestInterface as Request;
 
+ /**
+ * Legacy purposes only, to prevent code that uses it from breaking.
+ */
+trigger_error('Query route deprecated as of ZF 2.1.4; use the "query" option of the HTTP router\'s assembling method instead', E_USER_DEPRECATED);
+
 /**
  * Query route.
  *
  * @see        http://guides.rubyonrails.org/routing.html
+ * @deprecated
  */
 class Query implements RouteInterface
 {
@@ -50,7 +56,7 @@ class Query implements RouteInterface
     /**
      * factory(): defined by RouteInterface interface.
      *
-     * @see    Route::factory()
+     * @see    \Zend\Mvc\Router\RouteInterface::factory()
      * @param  array|Traversable $options
      * @throws Exception\InvalidArgumentException
      * @return Query
@@ -74,20 +80,17 @@ class Query implements RouteInterface
     /**
      * match(): defined by RouteInterface interface.
      *
-     * @see    Route::match()
+     * @see    \Zend\Mvc\Router\RouteInterface::match()
      * @param  Request $request
      * @param  int|null $pathOffset
      * @return RouteMatch
      */
     public function match(Request $request, $pathOffset = null)
     {
-        if (!method_exists($request, 'getQuery')) {
-            return null;
-        }
-
-        $matches = $this->recursiveUrldecode($request->getQuery()->toArray());
-
-        return new RouteMatch(array_merge($this->defaults, $matches));
+        // We don't merge the query parameters into the rotue match here because
+        // of possible security problems. Use the Query object instead which is
+        // included in the Request object.
+        return new RouteMatch($this->defaults);
     }
 
     /**
@@ -111,7 +114,7 @@ class Query implements RouteInterface
 
     /**
      * assemble(): Defined by RouteInterface interface.
-     * @see    Route::assemble()
+     * @see    \Zend\Mvc\Router\RouteInterface::assemble()
      *
      * @param  array $params
      * @param  array $options
@@ -137,7 +140,7 @@ class Query implements RouteInterface
     /**
      * getAssembledParams(): defined by RouteInterface interface.
      *
-     * @see    Route::getAssembledParams
+     * @see    RouteInterface::getAssembledParams
      * @return array
      */
     public function getAssembledParams()

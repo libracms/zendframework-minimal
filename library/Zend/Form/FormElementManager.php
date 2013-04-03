@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -36,6 +36,7 @@ class FormElementManager extends AbstractPluginManager
         'dateselect'    => 'Zend\Form\Element\DateSelect',
         'datetime'      => 'Zend\Form\Element\DateTime',
         'datetimelocal' => 'Zend\Form\Element\DateTimeLocal',
+        'datetimeselect' => 'Zend\Form\Element\DateTimeSelect',
         'element'       => 'Zend\Form\Element',
         'email'         => 'Zend\Form\Element\Email',
         'fieldset'      => 'Zend\Form\Fieldset',
@@ -84,7 +85,7 @@ class FormElementManager extends AbstractPluginManager
     public function injectFactory($element)
     {
         if ($element instanceof FormFactoryAwareInterface) {
-            $element->setFormFactory(new Factory($this));
+            $element->getFormFactory()->setFormElementManager($this);
         }
     }
 

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 namespace Zend\Log\Writer;
@@ -100,9 +100,10 @@ class FingersCrossed extends AbstractWriter
     }
 
     /**
-     * Set a new formatter for this writer
+     * Set a new writer
      *
-     * @param  string|Formatter\FormatterInterface $formatter
+     * @param  string|WriterInterface $writer
+     * @param  array|null $options
      * @return self
      * @throws Exception\InvalidArgumentException
      */
@@ -114,7 +115,7 @@ class FingersCrossed extends AbstractWriter
 
         if (!$writer instanceof WriterInterface) {
             throw new Exception\InvalidArgumentException(sprintf(
-                    'Formatter must implement %s\Formatter\FormatterInterface; received "%s"',
+                    'Writer must implement %s\WriterInterface; received "%s"',
                     __NAMESPACE__,
                     is_object($writer) ? get_class($writer) : gettype($writer)
             ));
@@ -141,7 +142,7 @@ class FingersCrossed extends AbstractWriter
      * Set writer plugin manager
      *
      * @param  string|WriterPluginManager $plugins
-     * @return Logger
+     * @return FingersCrossed
      * @throws Exception\InvalidArgumentException
      */
     public function setWriterPluginManager($plugins)
@@ -166,7 +167,7 @@ class FingersCrossed extends AbstractWriter
      *
      * @param string $name
      * @param array|null $options
-     * @return Writer\WriterInterface
+     * @return WriterInterface
      */
     public function writerPlugin($name, array $options = null)
     {
@@ -243,7 +244,7 @@ class FingersCrossed extends AbstractWriter
      * Stub in accordance to parent method signature.
      * Fomatters must be set on the wrapped writer.
      *
-     * @param string|Formatter\FormatterInterface $formatter
+     * @param string|FormatterInterface $formatter
      * @return WriterInterface
      */
     public function setFormatter($formatter)

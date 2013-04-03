@@ -4,7 +4,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -73,7 +73,7 @@ class MongoDBOptions extends AbstractOptions
      *
      * @param string $database
      * @return MongoDBOptions
-     * @throws Zend\Session\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function setDatabase($database)
     {
@@ -100,7 +100,7 @@ class MongoDBOptions extends AbstractOptions
      *
      * @param string $collection
      * @return MongoDBOptions
-     * @throws Zend\Session\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function setCollection($collection)
     {
@@ -150,7 +150,7 @@ class MongoDBOptions extends AbstractOptions
      *
      * @param string $nameField
      * @return MongoDBOptions
-     * @throws Zend\Session\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function setNameField($nameField)
     {
@@ -177,7 +177,7 @@ class MongoDBOptions extends AbstractOptions
      *
      * @param string $dataField
      * @return MongoDBOptions
-     * @throws Zend\Session\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function setDataField($dataField)
     {
@@ -204,7 +204,7 @@ class MongoDBOptions extends AbstractOptions
      *
      * @param string $lifetimeField
      * @return MongoDBOptions
-     * @throws Zend\Session\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function setLifetimeField($lifetimeField)
     {
@@ -231,7 +231,7 @@ class MongoDBOptions extends AbstractOptions
      *
      * @param string $modifiedField
      * @return MongoDBOptions
-     * @throws Zend\Session\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function setModifiedField($modifiedField)
     {

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link       http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -46,7 +46,7 @@ class Authentication extends AbstractValidator
 
     /**
      * Authentication Adapter
-     * @var Zend\Authentication\Adapter\Adapter
+     * @var ValidatableAdapterInterface
      */
     protected $adapter;
 
@@ -64,7 +64,7 @@ class Authentication extends AbstractValidator
 
     /**
      * Authentication Service
-     * @var Zend\Authentication\AuthenticationService
+     * @var AuthenticationService
      */
     protected $service;
 
@@ -99,7 +99,7 @@ class Authentication extends AbstractValidator
     /**
      * Get Adapter
      *
-     * @return Zend\Authentication\Adapter\ValidatableAdapterInterface
+     * @return ValidatableAdapterInterface
      */
     public function getAdapter()
     {
@@ -109,7 +109,7 @@ class Authentication extends AbstractValidator
     /**
      * Set Adapter
      *
-     * @param  Zend\Authentication\Adapter\ValidatableAdapterInterface $adapter
+     * @param  ValidatableAdapterInterface $adapter
      * @return Authentication
      */
     public function setAdapter(ValidatableAdapterInterface $adapter)
@@ -168,7 +168,7 @@ class Authentication extends AbstractValidator
     /**
      * Get Service
      *
-     * @return Zend\Authentication\AuthenticationService
+     * @return AuthenticationService
      */
     public function getService()
     {
@@ -178,7 +178,7 @@ class Authentication extends AbstractValidator
     /**
      * Set Service
      *
-     * @param  Zend\Authentication\AuthenticationService $service
+     * @param  AuthenticationService $service
      * @return Authentication
      */
     public function setService(AuthenticationService $service)

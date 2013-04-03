@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -54,6 +54,14 @@ class MonthSelect extends Element implements InputProviderInterface, ElementPrep
      * @var bool
      */
     protected $createEmptyOption = false;
+
+    /**
+     * If set to true, view helpers will render delimiters between <select> elements, according to the
+     * specified locale
+     *
+     * @var bool
+     */
+    protected $renderDelimiters = true;
 
     /**
      * @var ValidatorInterface
@@ -110,6 +118,10 @@ class MonthSelect extends Element implements InputProviderInterface, ElementPrep
 
         if (isset($options['create_empty_option'])) {
             $this->setShouldCreateEmptyOption($options['create_empty_option']);
+        }
+
+        if (isset($options['render_delimiters'])) {
+            $this->setShouldRenderDelimiters($options['render_delimiters']);
         }
 
         return $this;
@@ -227,6 +239,24 @@ class MonthSelect extends Element implements InputProviderInterface, ElementPrep
     public function shouldCreateEmptyOption()
     {
         return $this->createEmptyOption;
+    }
+
+    /**
+     * @param  bool $renderDelimiters
+     * @return MonthSelect
+     */
+    public function setShouldRenderDelimiters($renderDelimiters)
+    {
+        $this->renderDelimiters = (bool) $renderDelimiters;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function shouldRenderDelimiters()
+    {
+        return $this->renderDelimiters;
     }
 
     /**

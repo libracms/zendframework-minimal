@@ -140,12 +140,12 @@ abstract class AbstractValidator implements
                 $this->{$name}($option);
             } elseif (($fname != 'setOptions') && method_exists($this, $fname)) {
                 $this->{$fname}($option);
-            } elseif (($fname2 != 'setOptions') && method_exists($this, $fname2)) {
+            } elseif (method_exists($this, $fname2)) {
                 $this->{$fname2}($option);
             } elseif (isset($this->options)) {
                 $this->options[$name] = $option;
             } else {
-                $this->abstractOptions[$name] = $options;
+                $this->abstractOptions[$name] = $option;
             }
         }
 
