@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Json
  */
 
 namespace Zend\Json\Server;
@@ -17,10 +16,6 @@ use Zend\Server\Definition;
 use Zend\Server\Method;
 use Zend\Server\Reflection;
 
-/**
- * @category   Zend
- * @package    Zend_Json
- */
 class Server extends AbstractServer
 {
     /**#@+
@@ -72,6 +67,7 @@ class Server extends AbstractServer
      *
      * @param  string|array|callable $function   Valid PHP callback
      * @param  string                $namespace  Ignored
+     * @throws Exception\InvalidArgumentException if function invalid or not callable
      * @return Server
      */
     public function addFunction($function, $namespace = '')
@@ -145,7 +141,8 @@ class Server extends AbstractServer
      *
      * @param  string $fault
      * @param  int $code
-     * @return false
+     * @param  mixed $data
+     * @return Error
      */
     public function fault($fault = null, $code = 404, $data = null)
     {
@@ -158,6 +155,7 @@ class Server extends AbstractServer
      * Handle request
      *
      * @param  Request $request
+     * @throws Exception\InvalidArgumentException
      * @return null|Response
      */
     public function handle($request = false)
@@ -188,6 +186,7 @@ class Server extends AbstractServer
      * Load function definitions
      *
      * @param  array|Definition $definition
+     * @throws Exception\InvalidArgumentException
      * @return void
      */
     public function loadFunctions($definition)
@@ -264,7 +263,7 @@ class Server extends AbstractServer
      *
      * The response is always available via {@link getResponse()}.
      *
-     * @param boolean $flag
+     * @param  bool $flag
      * @return Server
      */
     public function setReturnResponse($flag = true)
@@ -276,7 +275,7 @@ class Server extends AbstractServer
     /**
      * Retrieve return response flag
      *
-     * @return boolean
+     * @return bool
      */
     public function getReturnResponse()
     {
@@ -367,7 +366,7 @@ class Server extends AbstractServer
             if (array_key_exists('default', $param)) {
                 $value = $param['default'];
             }
-            array_push($args, $value);
+            $args[$param['name']] = $value;
         }
         return $args;
     }
@@ -462,7 +461,7 @@ class Server extends AbstractServer
         if (null === $this->smdMethods) {
             $this->smdMethods = array();
             $methods = get_class_methods('Zend\\Json\\Server\\Smd');
-            foreach ($methods as $key => $method) {
+            foreach ($methods as $method) {
                 if (!preg_match('/^(set|get)/', $method)) {
                     continue;
                 }

@@ -3,12 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Http
  */
 
 namespace Zend\Http\Header;
+
+use Closure;
+use Zend\Uri\UriFactory;
 
 /**
  * @throws Exception\InvalidArgumentException
@@ -70,12 +72,12 @@ class SetCookie implements MultipleHeaderInterface
     /**
      * Whether the cookie is secure or not
      *
-     * @var boolean
+     * @var bool
      */
     protected $secure = null;
 
     /**
-     * @var boolean|null
+     * @var bool|null
      */
     protected $httponly = null;
 
@@ -93,9 +95,10 @@ class SetCookie implements MultipleHeaderInterface
 
         if ($setCookieProcessor === null) {
             $setCookieClass = get_called_class();
-            $setCookieProcessor = function($headerLine) use ($setCookieClass) {
+            $setCookieProcessor = function ($headerLine) use ($setCookieClass) {
                 $header = new $setCookieClass;
                 $keyValuePairs = preg_split('#;\s*#', $headerLine);
+
                 foreach ($keyValuePairs as $keyValue) {
                     if (strpos($keyValue, '=')) {
                         list($headerKey, $headerValue) = preg_split('#=\s*#', $keyValue, 2);
@@ -107,7 +110,7 @@ class SetCookie implements MultipleHeaderInterface
                     // First K=V pair is always the cookie name and value
                     if ($header->getName() === NULL) {
                         $header->setName($headerKey);
-                        $header->setValue($headerValue);
+                        $header->setValue(urldecode($headerValue));
                         continue;
                     }
 
@@ -130,6 +133,9 @@ class SetCookie implements MultipleHeaderInterface
         }
 
         list($name, $value) = explode(': ', $headerLine, 2);
+
+        // some sites return set-cookie::value, this is to get rid of the second :
+        $name = (strtolower($name) =='set-cookie:') ? 'set-cookie' : $name;
 
         // check to ensure proper header type for this factory
         if (strtolower($name) !== 'set-cookie') {
@@ -270,6 +276,7 @@ class SetCookie implements MultipleHeaderInterface
 
     /**
      * @param string $name
+     * @throws Exception\InvalidArgumentException
      * @return SetCookie
      */
     public function setName($name)
@@ -310,6 +317,7 @@ class SetCookie implements MultipleHeaderInterface
      * Set version
      *
      * @param integer $version
+     * @throws Exception\InvalidArgumentException
      */
     public function setVersion($version)
     {
@@ -333,6 +341,7 @@ class SetCookie implements MultipleHeaderInterface
      * Set Max-Age
      *
      * @param integer $maxAge
+     * @throws Exception\InvalidArgumentException
      */
     public function setMaxAge($maxAge)
     {
@@ -354,6 +363,7 @@ class SetCookie implements MultipleHeaderInterface
 
     /**
      * @param int $expires
+     * @throws Exception\InvalidArgumentException
      * @return SetCookie
      */
     public function setExpires($expires)
@@ -370,6 +380,7 @@ class SetCookie implements MultipleHeaderInterface
     }
 
     /**
+     * @param bool $inSeconds
      * @return int
      */
     public function getExpires($inSeconds = false)
@@ -416,7 +427,7 @@ class SetCookie implements MultipleHeaderInterface
     }
 
     /**
-     * @param boolean $secure
+     * @param  bool $secure
      */
     public function setSecure($secure)
     {
@@ -424,7 +435,7 @@ class SetCookie implements MultipleHeaderInterface
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isSecure()
     {
@@ -432,7 +443,7 @@ class SetCookie implements MultipleHeaderInterface
     }
 
     /**
-     * @param boolean $httponly
+     * @param  bool $httponly
      */
     public function setHttponly($httponly)
     {
@@ -440,7 +451,7 @@ class SetCookie implements MultipleHeaderInterface
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isHttponly()
     {
@@ -453,7 +464,7 @@ class SetCookie implements MultipleHeaderInterface
      * Always returns false if the cookie is a session cookie (has no expiry time)
      *
      * @param int $now Timestamp to consider as "now"
-     * @return boolean
+     * @return bool
      */
     public function isExpired($now = null)
     {
@@ -463,15 +474,15 @@ class SetCookie implements MultipleHeaderInterface
 
         if (is_int($this->expires) && $this->expires < $now) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
      * Check whether the cookie is a session cookie (has no expiry time set)
      *
-     * @return boolean
+     * @return bool
      */
     public function isSessionCookie()
     {
@@ -480,7 +491,7 @@ class SetCookie implements MultipleHeaderInterface
 
     public function isValidForRequest($requestDomain, $path, $isSecure = false)
     {
-        if ($this->getDomain() && (strrpos($requestDomain, $this->getDomain()) !== false)) {
+        if ($this->getDomain() && (strrpos($requestDomain, $this->getDomain()) === false)) {
             return false;
         }
 
@@ -494,6 +505,93 @@ class SetCookie implements MultipleHeaderInterface
 
         return true;
 
+    }
+
+    /**
+     * Checks whether the cookie should be sent or not in a specific scenario
+     *
+     * @param string|Zend\Uri\Uri $uri URI to check against (secure, domain, path)
+     * @param boolean $matchSessionCookies Whether to send session cookies
+     * @param int $now Override the current time when checking for expiry time
+     * @return boolean
+     */
+    public function match($uri, $matchSessionCookies = true, $now = null)
+    {
+        if (is_string ($uri)) {
+            $uri = UriFactory::factory($uri);
+        }
+
+        // Make sure we have a valid Zend_Uri_Http object
+        if (! ($uri->isValid() && ($uri->getScheme() == 'http' || $uri->getScheme() =='https'))) {
+            throw new Exception\InvalidArgumentException('Passed URI is not a valid HTTP or HTTPS URI');
+        }
+
+        // Check that the cookie is secure (if required) and not expired
+        if ($this->secure && $uri->getScheme() != 'https') return false;
+        if ($this->isExpired($now)) return false;
+        if ($this->isSessionCookie() && ! $matchSessionCookies) return false;
+
+        // Check if the domain matches
+        if (! self::matchCookieDomain($this->getDomain(), $uri->getHost())) {
+            return false;
+        }
+
+        // Check that path matches using prefix match
+        if (! self::matchCookiePath($this->getPath(), $uri->getPath())) {
+            return false;
+        }
+
+        // If we didn't die until now, return true.
+        return true;
+    }
+
+    /**
+     * Check if a cookie's domain matches a host name.
+     *
+     * Used by Zend\Http\Cookies for cookie matching
+     *
+     * @param  string $cookieDomain
+     * @param  string $host
+     *
+     * @return boolean
+     */
+    public static function matchCookieDomain($cookieDomain, $host)
+    {
+        if (! $cookieDomain) {
+            throw new Exception\InvalidArgumentException('$cookieDomain is expected to be a cookie domain');
+        }
+
+        if (! $host) {
+            throw new Exception\InvalidArgumentException('$host is expected to be a host name');
+        }
+
+        $cookieDomain = strtolower($cookieDomain);
+        $host = strtolower($host);
+        // Check for either exact match or suffix match
+        return ($cookieDomain == $host ||
+                preg_match('/' . preg_quote($cookieDomain) . '$/', $host));
+    }
+
+    /**
+     * Check if a cookie's path matches a URL path
+     *
+     * Used by Zend\Http\Cookies for cookie matching
+     *
+     * @param  string $cookiePath
+     * @param  string $path
+     * @return boolean
+     */
+    public static function matchCookiePath($cookiePath, $path)
+    {
+        if (! $cookiePath) {
+            throw new Exception\InvalidArgumentException('$cookiePath is expected to be a cookie path');
+        }
+
+        if (! $path) {
+            throw new Exception\InvalidArgumentException('$path is expected to be a host name');
+        }
+
+        return (strpos($path, $cookiePath) === 0);
     }
 
     public function toString()

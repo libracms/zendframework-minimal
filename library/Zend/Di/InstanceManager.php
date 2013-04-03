@@ -3,18 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Di
  */
 
 namespace Zend\Di;
 
 /**
  * Registry of instantiated objects, their names and the parameters used to build them
- *
- * @category   Zend
- * @package    Zend_Di
  */
 class InstanceManager /* implements InstanceManagerInterface */
 {
@@ -55,7 +51,7 @@ class InstanceManager /* implements InstanceManagerInterface */
          * alias|class => bool
          */
         'shared' => true
-        );
+    );
 
     /**
      * An array of instance configuration data
@@ -97,7 +93,7 @@ class InstanceManager /* implements InstanceManagerInterface */
     public function addSharedInstance($instance, $classOrAlias)
     {
         if (!is_object($instance)) {
-            throw new Exception\InvalidArgumentException('This method requires an object to be shared. Class or Alias given: '.$classOrAlias);
+            throw new Exception\InvalidArgumentException('This method requires an object to be shared. Class or Alias given: ' . $classOrAlias);
         }
 
         $this->sharedInstances[$classOrAlias] = $instance;
@@ -335,9 +331,9 @@ class InstanceManager /* implements InstanceManagerInterface */
         $key = ($this->hasAlias($aliasOrClass)) ? 'alias:' . $this->getBaseAlias($aliasOrClass) : $aliasOrClass;
         if (isset($this->configurations[$key])) {
             return $this->configurations[$key];
-        } else {
-            return $this->configurationTemplate;
         }
+
+        return $this->configurationTemplate;
     }
 
     /**

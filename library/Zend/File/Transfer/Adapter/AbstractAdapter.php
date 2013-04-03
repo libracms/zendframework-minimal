@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  * @package   Zend_File
  */
@@ -182,7 +182,7 @@ abstract class AbstractAdapter implements TranslatorAwareInterface
     /**
      * Has the file been filtered ?
      *
-     * @param array|string|null $files
+     * @param  array|string|null $files
      * @return bool
      */
     abstract public function isFiltered($files = null);
@@ -278,7 +278,7 @@ abstract class AbstractAdapter implements TranslatorAwareInterface
      * Adds a new validator for this class
      *
      * @param  string|Validator\ValidatorInterface $validator           Type of validator to add
-     * @param  boolean                    $breakChainOnFailure If the validation chain should stop an failure
+     * @param  bool                    $breakChainOnFailure If the validation chain should stop an failure
      * @param  string|array               $options             Options to set for the validator
      * @param  string|array               $files               Files to limit this validator to
      * @return AbstractAdapter
@@ -533,7 +533,7 @@ abstract class AbstractAdapter implements TranslatorAwareInterface
                         case 'ignoreNoFile' :
                         case 'useByteString' :
                         case 'detectInfos' :
-                            $this->files[$key]['options'][$name] = (boolean) $value;
+                            $this->files[$key]['options'][$name] = (bool) $value;
                             break;
 
                         default:
@@ -571,7 +571,7 @@ abstract class AbstractAdapter implements TranslatorAwareInterface
      * Checks if the files are valid
      *
      * @param  string|array $files (Optional) Files to check
-     * @return boolean True if all checks are valid
+     * @return bool True if all checks are valid
      */
     public function isValid($files = null)
     {
@@ -583,7 +583,7 @@ abstract class AbstractAdapter implements TranslatorAwareInterface
         $translator      = $this->getTranslator();
         $this->messages = array();
         $break           = false;
-        foreach ($check as $key => $content) {
+        foreach ($check as $content) {
             if (array_key_exists('validators', $content) &&
                 in_array('Zend\Validator\File\Count', $content['validators'])) {
                 $validator = $this->validators['Zend\Validator\File\Count'];
@@ -622,7 +622,7 @@ abstract class AbstractAdapter implements TranslatorAwareInterface
                         $validator->setTranslator($translator);
                     }
 
-                    if (($class === 'Zend\Validator\File\Upload') and (empty($content['tmp_name']))) {
+                    if (($class === 'Zend\Validator\File\Upload') && (empty($content['tmp_name']))) {
                         $tocheck = $key;
                     } else {
                         $tocheck = $content['tmp_name'];
@@ -632,16 +632,16 @@ abstract class AbstractAdapter implements TranslatorAwareInterface
                         $fileerrors += $validator->getMessages();
                     }
 
-                    if (!empty($content['options']['ignoreNoFile']) and (isset($fileerrors['fileUploadErrorNoFile']))) {
+                    if (!empty($content['options']['ignoreNoFile']) && (isset($fileerrors['fileUploadErrorNoFile']))) {
                         unset($fileerrors['fileUploadErrorNoFile']);
                         break;
                     }
 
-                    if (($class === 'Zend\Validator\File\Upload') and (count($fileerrors) > 0)) {
+                    if (($class === 'Zend\Validator\File\Upload') && (count($fileerrors) > 0)) {
                         break;
                     }
 
-                    if (($this->break[$class]) and (count($fileerrors) > 0)) {
+                    if (($this->break[$class]) && (count($fileerrors) > 0)) {
                         $break = true;
                         break;
                     }
@@ -690,7 +690,7 @@ abstract class AbstractAdapter implements TranslatorAwareInterface
     /**
      * Are there errors registered?
      *
-     * @return boolean
+     * @return bool
      */
     public function hasErrors()
     {
@@ -885,8 +885,8 @@ abstract class AbstractAdapter implements TranslatorAwareInterface
     /**
      * Retrieves the filename of transferred files.
      *
-     * @param  string  $fileelement (Optional) Element to return the filename for
-     * @param  boolean $path        (Optional) Should the path also be returned ?
+     * @param  string  $file (Optional) Element to return the filename for
+     * @param  bool $path (Optional) Should the path also be returned ?
      * @return string|array
      */
     public function getFileName($file = null, $path = true)
@@ -967,6 +967,7 @@ abstract class AbstractAdapter implements TranslatorAwareInterface
      * Retrieve destination directory value
      *
      * @param  null|string|array $files
+     * @throws Exception\InvalidArgumentException
      * @return null|string|array
      */
     public function getDestination($files = null)
@@ -1136,7 +1137,7 @@ abstract class AbstractAdapter implements TranslatorAwareInterface
         foreach ($files as $key => $value) {
             if (file_exists($value['name']) || file_exists($value['tmp_name'])) {
                 if ($value['options']['useByteString']) {
-                    $result[$key] = self::toByteString($value['size']);
+                    $result[$key] = static::toByteString($value['size']);
                 } else {
                     $result[$key] = $value['size'];
                 }
@@ -1278,7 +1279,7 @@ abstract class AbstractAdapter implements TranslatorAwareInterface
      * Internal function to filter all given files
      *
      * @param  string|array $files (Optional) Files to check
-     * @return boolean False on error
+     * @return bool False on error
      */
     protected function filter($files = null)
     {
@@ -1393,8 +1394,8 @@ abstract class AbstractAdapter implements TranslatorAwareInterface
      * Returns found files based on internal file array and given files
      *
      * @param  string|array $files       (Optional) Files to return
-     * @param  boolean      $names       (Optional) Returns only names on true, else complete info
-     * @param  boolean      $noexception (Optional) Allows throwing an exception, otherwise returns an empty array
+     * @param  bool      $names       (Optional) Returns only names on true, else complete info
+     * @param  bool      $noexception (Optional) Allows throwing an exception, otherwise returns an empty array
      * @return array Found files
      * @throws Exception\RuntimeException On false filename
      */

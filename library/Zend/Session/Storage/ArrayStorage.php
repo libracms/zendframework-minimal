@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Session
  */
 
 namespace Zend\Session\Storage;
@@ -18,10 +17,6 @@ use Zend\Session\Exception;
  *
  * Defines an ArrayObject interface for accessing session storage, with options
  * for setting metadata, locking, and marking as isImmutable.
- *
- * @category   Zend
- * @package    Zend_Session
- * @subpackage Storage
  */
 class ArrayStorage extends ArrayObject implements StorageInterface
 {
@@ -47,13 +42,25 @@ class ArrayStorage extends ArrayObject implements StorageInterface
         $iteratorClass = '\\ArrayIterator'
     ) {
         parent::__construct($input, $flags, $iteratorClass);
-        $this->setMetadata('_REQUEST_ACCESS_TIME', microtime(true));
+        $this->setRequestAccessTime(microtime(true));
+    }
+
+    /**
+     * Set the request access time
+     *
+     * @param  float $time
+     * @return ArrayStorage
+     */
+    protected function setRequestAccessTime($time)
+    {
+        $this->setMetadata('_REQUEST_ACCESS_TIME', $time);
+        return $this;
     }
 
     /**
      * Retrieve the request access time
      *
-     * @return int
+     * @return float
      */
     public function getRequestAccessTime()
     {
@@ -289,7 +296,7 @@ class ArrayStorage extends ArrayObject implements StorageInterface
             throw new Exception\RuntimeException('Cannot clear storage as it is marked immutable');
         }
         if (null === $key) {
-            $this->exchangeArray(array());
+            $this->fromArray(array());
             return $this;
         }
 
@@ -317,7 +324,9 @@ class ArrayStorage extends ArrayObject implements StorageInterface
      */
     public function fromArray(array $array)
     {
+        $ts = $this->getRequestAccessTime();
         $this->exchangeArray($array);
+        $this->setRequestAccessTime($ts);
         return $this;
     }
 

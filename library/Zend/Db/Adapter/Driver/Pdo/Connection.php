@@ -3,28 +3,27 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Db
  */
 
 namespace Zend\Db\Adapter\Driver\Pdo;
 
 use Zend\Db\Adapter\Driver\ConnectionInterface;
-use Zend\Db\Adapter\Driver\DriverInterface;
 use Zend\Db\Adapter\Exception;
+use Zend\Db\Adapter\Profiler;
 
-/**
- * @category   Zend
- * @package    Zend_Db
- * @subpackage Adapter
- */
-class Connection implements ConnectionInterface
+class Connection implements ConnectionInterface, Profiler\ProfilerAwareInterface
 {
     /**
      * @var Pdo
      */
     protected $driver = null;
+
+    /**
+     * @var Profiler\ProfilerInterface
+     */
+    protected $profiler = null;
 
     /**
      * @var string
@@ -47,8 +46,10 @@ class Connection implements ConnectionInterface
     protected $inTransaction = false;
 
     /**
+     * Constructor
+     *
      * @param array|\PDO|null $connectionParameters
-     * @throws \Zend\Db\Adapter\Exception\InvalidArgumentException
+     * @throws Exception\InvalidArgumentException
      */
     public function __construct($connectionParameters = null)
     {
@@ -62,6 +63,8 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Set driver
+     *
      * @param Pdo $driver
      * @return Connection
      */
@@ -72,6 +75,26 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * @param Profiler\ProfilerInterface $profiler
+     * @return Connection
+     */
+    public function setProfiler(Profiler\ProfilerInterface $profiler)
+    {
+        $this->profiler = $profiler;
+        return $this;
+    }
+
+    /**
+     * @return null|Profiler\ProfilerInterface
+     */
+    public function getProfiler()
+    {
+        return $this->profiler;
+    }
+
+    /**
+     * Get driver name
+     *
      * @return null|string
      */
     public function getDriverName()
@@ -80,7 +103,10 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Set connection parameters
+     *
      * @param array $connectionParameters
+     * @return void
      */
     public function setConnectionParameters(array $connectionParameters)
     {
@@ -100,6 +126,8 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Get connection parameters
+     *
      * @return array
      */
     public function getConnectionParameters()
@@ -152,6 +180,8 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Get resource
+     *
      * @return \PDO
      */
     public function getResource()
@@ -160,8 +190,11 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Connect
+     *
      * @return Connection
-     * @throws \Exception
+     * @throws Exception\InvalidConnectionParametersException
+     * @throws Exception\RuntimeException
      */
     public function connect()
     {
@@ -197,6 +230,9 @@ class Connection implements ConnectionInterface
                 case 'hostname':
                     $hostname = (string) $value;
                     break;
+                case 'port':
+                    $port = (int) $value;
+                    break;
                 case 'database':
                 case 'dbname':
                     $database = (string) $value;
@@ -225,6 +261,9 @@ class Connection implements ConnectionInterface
                     if (isset($hostname)) {
                         $dsn[] = "host={$hostname}";
                     }
+                    if (isset($port)) {
+                        $dsn[] = "port={$port}";
+                    }
                     break;
             }
             $dsn = $pdoDriver . ':' . implode(';', $dsn);
@@ -240,13 +279,19 @@ class Connection implements ConnectionInterface
             $this->resource->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $this->driverName = strtolower($this->resource->getAttribute(\PDO::ATTR_DRIVER_NAME));
         } catch (\PDOException $e) {
-            throw new Exception\RuntimeException('Connect Error: ' . $e->getMessage(), $e->getCode(), $e);
+            $code = $e->getCode();
+            if (!is_long($code)) {
+                $code = null;
+            }
+            throw new Exception\RuntimeException('Connect Error: ' . $e->getMessage(), $code, $e);
         }
 
         return $this;
     }
 
     /**
+     * Is connected
+     *
      * @return bool
      */
     public function isConnected()
@@ -255,6 +300,8 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Disconnect
+     *
      * @return Connection
      */
     public function disconnect()
@@ -266,6 +313,8 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Begin transaction
+     *
      * @return Connection
      */
     public function beginTransaction()
@@ -279,6 +328,8 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Commit
+     *
      * @return Connection
      */
     public function commit()
@@ -293,8 +344,10 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Rollback
+     *
      * @return Connection
-     * @throws \Exception
+     * @throws Exception\RuntimeException
      */
     public function rollback()
     {
@@ -311,9 +364,11 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Execute
+     *
      * @param $sql
      * @return Result
-     * @throws \Zend\Db\Adapter\Exception\InvalidQueryException
+     * @throws Exception\InvalidQueryException
      */
     public function execute($sql)
     {
@@ -321,7 +376,15 @@ class Connection implements ConnectionInterface
             $this->connect();
         }
 
+        if ($this->profiler) {
+            $this->profiler->profilerStart($sql);
+        }
+
         $resultResource = $this->resource->query($sql);
+
+        if ($this->profiler) {
+            $this->profiler->profilerFinish($sql);
+        }
 
         if ($resultResource === false) {
             $errorInfo = $this->resource->errorInfo();
@@ -334,6 +397,8 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Prepare
+     *
      * @param string $sql
      * @return Statement
      */
@@ -366,5 +431,4 @@ class Connection implements ConnectionInterface
         }
         return false;
     }
-
 }

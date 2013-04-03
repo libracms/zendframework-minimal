@@ -3,21 +3,18 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Dom
  */
 
 namespace Zend\Dom;
 
 use DOMDocument;
-use DOMNodeList;
 use DOMXPath;
+use Zend\Stdlib\ErrorHandler;
 
 /**
  * Query DOM structures based on CSS selectors and/or XPath
- *
- * @package    Zend_Dom
  */
 class Query
 {
@@ -67,7 +64,8 @@ class Query
     /**
      * Constructor
      *
-     * @param  null|string $document
+     * @param null|string $document
+     * @param null|string $encoding
      */
     public function __construct($document = null, $encoding = null)
     {
@@ -286,7 +284,7 @@ class Query
     /**
      * Register PHP Functions to use in internal DOMXPath
      *
-     * @param  mixed $restrict
+     * @param  bool $xpathPhpFunctions
      * @return void
      */
     public function registerXpathPhpFunctions($xpathPhpFunctions = true)
@@ -314,6 +312,13 @@ class Query
                 : $xpath->registerPHPFunctions($this->xpathPhpFunctions);
         }
         $xpathQuery = (string) $xpathQuery;
-        return $xpath->query($xpathQuery);
+
+        ErrorHandler::start();
+        $nodeList = $xpath->query($xpathQuery);
+        $error = ErrorHandler::stop();
+        if ($error) {
+            throw $error;
+        }
+        return $nodeList;
     }
 }

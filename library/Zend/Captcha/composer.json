@@ -8,13 +8,14 @@
     ],
     "autoload": {
         "psr-0": {
-            "Zend\\Captcha": ""
+            "Zend\\Captcha\\": ""
         }
     },
     "target-dir": "Zend/Captcha",
     "require": {
         "php": ">=5.3.3",
-        "zendframework/zend-math": "self.version"
+        "zendframework/zend-math": "self.version",
+        "zendframework/zend-stdlib": "self.version"
     },
     "require-dev": {
         "zendframework/zendservice-recaptcha": "*"

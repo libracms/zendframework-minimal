@@ -3,17 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Soap
  */
 
 namespace Zend\Soap;
 
 use Zend\Server\Reflection;
 use Zend\Server\Reflection\AbstractFunction;
-use Zend\Server\Reflection\Prototype;
-use Zend\Server\Reflection\ReflectionParameter;
 use Zend\Soap\AutoDiscover\DiscoveryStrategy\DiscoveryStrategyInterface as DiscoveryStrategy;
 use Zend\Soap\AutoDiscover\DiscoveryStrategy\ReflectionDiscovery;
 use Zend\Soap\Wsdl;
@@ -22,10 +19,6 @@ use Zend\Uri;
 
 /**
  * \Zend\Soap\AutoDiscover
- *
- * @category   Zend
- * @package    Zend_Soap
- * @subpackage AutoDiscover
  */
 class AutoDiscover
 {
@@ -54,7 +47,7 @@ class AutoDiscover
     protected $class;
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $strategy;
 
@@ -106,6 +99,7 @@ class AutoDiscover
      * @param ComplexTypeStrategy $strategy
      * @param string|Uri\Uri $endpointUri
      * @param string $wsdlClass
+     * @param array $classMap
      */
     public function __construct(ComplexTypeStrategy $strategy = null, $endpointUri=null, $wsdlClass=null, array $classMap = array())
     {
@@ -190,7 +184,7 @@ class AutoDiscover
                                          ->getShortName();
             } else {
                 throw new Exception\RuntimeException(
-                    "No service name given. Call Autodiscover#setServiceName()."
+                    "No service name given. Call Autodiscover::setServiceName()."
                 );
             }
         }
@@ -200,7 +194,7 @@ class AutoDiscover
 
 
     /**
-     * Set the location at which the WSDL file will be availabe.
+     * Set the location at which the WSDL file will be available.
      *
      * @param  Uri\Uri|string $uri
      * @return AutoDiscover
@@ -227,7 +221,7 @@ class AutoDiscover
     public function getUri()
     {
         if ($this->uri === null) {
-            throw new Exception\RuntimeException("Missing uri. You have to explicitly configure the Endpoint Uri by calling AutoDiscover#setUri().");
+            throw new Exception\RuntimeException("Missing uri. You have to explicitly configure the Endpoint Uri by calling AutoDiscover::setUri().");
         }
         if (is_string($this->uri)) {
             $this->uri = Uri\UriFactory::factory($this->uri);
@@ -343,7 +337,7 @@ class AutoDiscover
     /**
      * Generate the WSDL for a service class.
      *
-     * @return Zend\Soap\Wsdl
+     * @return Wsdl
      */
     protected function _generateClass()
     {
@@ -353,7 +347,7 @@ class AutoDiscover
     /**
      * Generate the WSDL for a set of functions.
      *
-     * @return Zend\Soap\Wsdl
+     * @return Wsdl
      */
     protected function _generateFunctions()
     {
@@ -368,20 +362,22 @@ class AutoDiscover
     /**
      * Generate the WSDL for a set of reflection method instances.
      *
-     * @return Zend\Soap\Wsdl
+     * @param array $reflectionMethods
+     * @return Wsdl
      */
     protected function _generateWsdl(array $reflectionMethods)
     {
         $uri = $this->getUri();
 
         $serviceName = $this->getServiceName();
+        /** @var Wsdl $wsdl  */
         $wsdl = new $this->wsdlClass($serviceName, $uri, $this->strategy, $this->classMap);
 
         // The wsdl:types element must precede all other elements (WS-I Basic Profile 1.1 R2023)
         $wsdl->addSchemaTypeSection();
 
         $port = $wsdl->addPortType($serviceName . 'Port');
-        $binding = $wsdl->addBinding($serviceName . 'Binding', 'tns:' .$serviceName. 'Port');
+        $binding = $wsdl->addBinding($serviceName . 'Binding', 'tns:' . $serviceName . 'Port');
 
         $wsdl->addSoapBinding($binding, $this->bindingStyle['style'], $this->bindingStyle['transport']);
         $wsdl->addService($serviceName . 'Service', $serviceName . 'Port', 'tns:' . $serviceName . 'Binding', $uri);
@@ -400,6 +396,7 @@ class AutoDiscover
      * @param $wsdl \Zend\Soap\Wsdl WSDL document
      * @param $port object wsdl:portType
      * @param $binding object wsdl:binding
+     * @throws Exception\InvalidArgumentException
      * @return void
      */
     protected function _addFunctionToWsdl($function, $wsdl, $port, $binding)
@@ -492,7 +489,7 @@ class AutoDiscover
         // When using the RPC style, make sure the operation style includes a 'namespace' attribute (WS-I Basic Profile 1.1 R2717)
         $operationBodyStyle = $this->operationBodyStyle;
         if ($this->bindingStyle['style'] == 'rpc' && !isset($operationBodyStyle['namespace'])) {
-            $operationBodyStyle['namespace'] = ''.$uri;
+            $operationBodyStyle['namespace'] = '' . $uri;
         }
 
         // Add the binding operation
@@ -507,7 +504,8 @@ class AutoDiscover
     /**
      * Generate the WSDL file from the configured input.
      *
-     * @return Zend_Wsdl
+     * @throws Exception\RuntimeException
+     * @return Wsdl
      */
     public function generate()
     {
@@ -545,5 +543,14 @@ class AutoDiscover
     public function toXml()
     {
         return $this->generate()->toXml();
+    }
+
+    /**
+     * Handle WSDL document.
+     */
+    public function handle()
+    {
+        header('Content-Type: text/xml');
+        echo $this->toXml();
     }
 }

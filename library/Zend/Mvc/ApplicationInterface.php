@@ -3,19 +3,16 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Mvc
  */
 
 namespace Zend\Mvc;
 
 use Zend\EventManager\EventsCapableInterface;
+use Zend\Http\Request;
+use Zend\Http\Response;
 
-/**
- * @category   Zend
- * @package    Zend_Mvc
- */
 interface ApplicationInterface extends EventsCapableInterface
 {
     /**
@@ -28,21 +25,21 @@ interface ApplicationInterface extends EventsCapableInterface
     /**
      * Get the request object
      *
-     * @return Request
+     * @return \Zend\Stdlib\RequestInterface
      */
     public function getRequest();
 
     /**
      * Get the response object
      *
-     * @return Response
+     * @return \Zend\Stdlib\ResponseInterface
      */
     public function getResponse();
 
     /**
      * Run the application
      *
-     * @return \Zend\Http\Response
+     * @return Response
      */
     public function run();
 }

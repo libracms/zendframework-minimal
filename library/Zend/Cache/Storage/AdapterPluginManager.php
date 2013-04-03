@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Cache
  */
 
 namespace Zend\Cache\Storage;
@@ -19,10 +18,6 @@ use Zend\ServiceManager\AbstractPluginManager;
  * Enforces that adapters retrieved are instances of
  * StorageInterface. Additionally, it registers a number of default
  * adapters available.
- *
- * @category   Zend
- * @package    Zend_Cache
- * @subpackage Storage
  */
 class AdapterPluginManager extends AbstractPluginManager
 {
@@ -33,15 +28,13 @@ class AdapterPluginManager extends AbstractPluginManager
      */
     protected $invokableClasses = array(
         'apc'            => 'Zend\Cache\Storage\Adapter\Apc',
+        'dba'            => 'Zend\Cache\Storage\Adapter\Dba',
         'filesystem'     => 'Zend\Cache\Storage\Adapter\Filesystem',
         'memcached'      => 'Zend\Cache\Storage\Adapter\Memcached',
         'memory'         => 'Zend\Cache\Storage\Adapter\Memory',
-        'sysvshm'        => 'Zend\Cache\Storage\Adapter\SystemVShm',
-        'systemvshm'     => 'Zend\Cache\Storage\Adapter\SystemVShm',
-        'sqlite'         => 'Zend\Cache\Storage\Adapter\Sqlite',
-        'dba'            => 'Zend\Cache\Storage\Adapter\Dba',
-        'wincache'       => 'Zend\Cache\Storage\Adapter\WinCache',
+        'session'        => 'Zend\Cache\Storage\Adapter\Session',
         'xcache'         => 'Zend\Cache\Storage\Adapter\XCache',
+        'wincache'       => 'Zend\Cache\Storage\Adapter\WinCache',
         'zendserverdisk' => 'Zend\Cache\Storage\Adapter\ZendServerDisk',
         'zendservershm'  => 'Zend\Cache\Storage\Adapter\ZendServerShm',
     );

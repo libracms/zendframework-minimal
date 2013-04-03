@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Db
  */
 
 namespace Zend\Db\Adapter\Driver\Sqlsrv;
@@ -13,18 +12,19 @@ namespace Zend\Db\Adapter\Driver\Sqlsrv;
 use Zend\Db\Adapter\Driver\Sqlsrv\Exception\ErrorException;
 use Zend\Db\Adapter\Driver\ConnectionInterface;
 use Zend\Db\Adapter\Exception;
+use Zend\Db\Adapter\Profiler;
 
-/**
- * @category   Zend
- * @package    Zend_Db
- * @subpackage Adapter
- */
-class Connection implements ConnectionInterface
+class Connection implements ConnectionInterface, Profiler\ProfilerAwareInterface
 {
     /**
      * @var Sqlsrv
      */
     protected $driver = null;
+
+    /**
+     * @var Profiler\ProfilerInterface
+     */
+    protected $profiler = null;
 
     /**
      * @var array
@@ -71,6 +71,24 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * @param Profiler\ProfilerInterface $profiler
+     * @return Connection
+     */
+    public function setProfiler(Profiler\ProfilerInterface $profiler)
+    {
+        $this->profiler = $profiler;
+        return $this;
+    }
+
+    /**
+     * @return null|Profiler\ProfilerInterface
+     */
+    public function getProfiler()
+    {
+        return $this->profiler;
+    }
+
+    /**
      * Set connection parameters
      *
      * @param  array $connectionParameters
@@ -112,6 +130,7 @@ class Connection implements ConnectionInterface
      * Set resource
      *
      * @param  resource $resource
+     * @throws Exception\InvalidArgumentException
      * @return Connection
      */
     public function setResource($resource)
@@ -134,6 +153,7 @@ class Connection implements ConnectionInterface
     /**
      * Connect
      *
+     * @throws Exception\RuntimeException
      * @return null
      */
     public function connect()
@@ -187,7 +207,7 @@ class Connection implements ConnectionInterface
 
     /**
      * Is connected
-     * @return boolean
+     * @return bool
      */
     public function isConnected()
     {
@@ -256,6 +276,7 @@ class Connection implements ConnectionInterface
      * Execute
      *
      * @param  string $sql
+     * @throws Exception\RuntimeException
      * @return mixed
      */
     public function execute($sql)
@@ -268,7 +289,15 @@ class Connection implements ConnectionInterface
             throw new Exception\RuntimeException('Connection is missing an instance of Sqlsrv');
         }
 
+        if ($this->profiler) {
+            $this->profiler->profilerStart($sql);
+        }
+
         $returnValue = sqlsrv_query($this->resource, $sql);
+
+        if ($this->profiler) {
+            $this->profiler->profilerFinish($sql);
+        }
 
         // if the returnValue is something other than a Sqlsrv_result, bypass wrapping it
         if ($returnValue === false) {
@@ -319,5 +348,4 @@ class Connection implements ConnectionInterface
         $row = sqlsrv_fetch_array($result);
         return $row['Current_Identity'];
     }
-
 }

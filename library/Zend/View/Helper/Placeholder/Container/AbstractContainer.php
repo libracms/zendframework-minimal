@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_View
  */
 
 namespace Zend\View\Helper\Placeholder\Container;
@@ -14,9 +13,6 @@ use Zend\View\Exception;
 
 /**
  * Abstract class representing container for placeholder values
- *
- * @package    Zend_View
- * @subpackage Helper
  */
 abstract class AbstractContainer extends \ArrayObject
 {
@@ -98,6 +94,7 @@ abstract class AbstractContainer extends \ArrayObject
     public function set($value)
     {
         $this->exchangeArray(array($value));
+        return $this;
     }
 
     /**
@@ -111,6 +108,7 @@ abstract class AbstractContainer extends \ArrayObject
         $values = $this->getArrayCopy();
         array_unshift($values, $value);
         $this->exchangeArray($values);
+        return $this;
     }
 
     /**
@@ -241,7 +239,8 @@ abstract class AbstractContainer extends \ArrayObject
     /**
      * Start capturing content to push into placeholder
      *
-     * @param  int $type How to capture content into placeholder; append, prepend, or set
+     * @param  string $type How to capture content into placeholder; append, prepend, or set
+     * @param  mixed $key Key to which to capture content
      * @return void
      * @throws Exception\RuntimeException if nested captures detected
      */
@@ -337,6 +336,7 @@ abstract class AbstractContainer extends \ArrayObject
     /**
      * Render the placeholder
      *
+     * @param null|int|string $indent
      * @return string
      */
     public function toString($indent = null)

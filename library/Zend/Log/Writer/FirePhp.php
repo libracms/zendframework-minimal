@@ -3,22 +3,19 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Log
  */
 
 namespace Zend\Log\Writer;
 
+use Traversable;
 use FirePHP as FirePHPService;
 use Zend\Log\Formatter\FirePhp as FirePhpFormatter;
 use Zend\Log\Logger;
+use Zend\Log\Exception;
+use FirePhp\FirePhpInterface;
 
-/**
- * @category   Zend
- * @package    Zend_Log
- * @subpackage Writer
- */
 class FirePhp extends AbstractWriter
 {
     /**
@@ -31,11 +28,25 @@ class FirePhp extends AbstractWriter
     /**
      * Initializes a new instance of this class.
      *
-     * @param null|FirePhp\FirePhpInterface $instance An instance of FirePhpInterface
+     * @param null|FirePhp\FirePhpInterface|array|Traversable $instance An instance of FirePhpInterface
      *        that should be used for logging
      */
-    public function __construct(FirePhp\FirePhpInterface $instance = null)
+    public function __construct($instance = null)
     {
+        if ($instance instanceof Traversable) {
+            $instance = iterator_to_array($instance);
+        }
+
+        if (is_array($instance)) {
+            parent::__construct($instance);
+            $instance = isset($instance['instance']) ? $instance['instance'] : null;
+        }
+
+        if ($instance instanceof FirePhpInterface) {
+            throw new Exception\InvalidArgumentException('You must pass a valid FirePhp\FirePhpInterface');
+        }
+
+
         $this->firephp   = $instance;
         $this->formatter = new FirePhpFormatter();
     }
@@ -43,7 +54,7 @@ class FirePhp extends AbstractWriter
     /**
      * Write a message to the log.
      *
-     * @param array $event event data
+     * @param  array $event event data
      * @return void
      */
     protected function doWrite(array $event)
@@ -54,27 +65,27 @@ class FirePhp extends AbstractWriter
             return;
         }
 
-        $line = $this->formatter->format($event);
+        list($line, $label) = $this->formatter->format($event);
 
         switch ($event['priority']) {
             case Logger::EMERG:
             case Logger::ALERT:
             case Logger::CRIT:
             case Logger::ERR:
-                $firephp->error($line);
+                $firephp->error($line, $label);
                 break;
             case Logger::WARN:
-                $firephp->warn($line);
+                $firephp->warn($line, $label);
                 break;
             case Logger::NOTICE:
             case Logger::INFO:
-                $firephp->info($line);
+                $firephp->info($line, $label);
                 break;
             case Logger::DEBUG:
                 $firephp->trace($line);
                 break;
             default:
-                $firephp->log($line);
+                $firephp->log($line, $label);
                 break;
         }
     }
@@ -83,9 +94,17 @@ class FirePhp extends AbstractWriter
      * Gets the FirePhpInterface instance that is used for logging.
      *
      * @return FirePhp\FirePhpInterface
+     * @throws Exception\RuntimeException
      */
     public function getFirePhp()
     {
+        if (!$this->firephp instanceof FirePhp\FirePhpInterface
+            && !class_exists('FirePHP')
+        ) {
+            // No FirePHP instance, and no way to create one
+            throw new Exception\RuntimeException('FirePHP Class not found');
+        }
+
         // Remember: class names in strings are absolute; thus the class_exists
         // here references the canonical name for the FirePHP class
         if (!$this->firephp instanceof FirePhp\FirePhpInterface
@@ -95,6 +114,7 @@ class FirePhp extends AbstractWriter
             // names would clash in this file on this line.
             $this->setFirePhp(new FirePhp\FirePhpBridge(new FirePHPService()));
         }
+
         return $this->firephp;
     }
 
@@ -107,6 +127,7 @@ class FirePhp extends AbstractWriter
     public function setFirePhp(FirePhp\FirePhpInterface $instance)
     {
         $this->firephp = $instance;
+
         return $this;
     }
 }

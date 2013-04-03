@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Stdlib
  */
 
 namespace Zend\Stdlib;
@@ -32,6 +31,7 @@ class Message implements MessageInterface
      *
      * @param  string|int|array|Traversable $spec
      * @param  mixed $value
+     * @throws Exception\InvalidArgumentException
      * @return Message
      */
     public function setMetadata($spec, $value = null)
@@ -57,6 +57,7 @@ class Message implements MessageInterface
      *
      * @param  null|string|int $key
      * @param  null|mixed $default
+     * @throws Exception\InvalidArgumentException
      * @return mixed
      */
     public function getMetadata($key = null, $default = null)
@@ -114,5 +115,4 @@ class Message implements MessageInterface
         $request .= "\r\n" . $this->getContent();
         return $request;
     }
-
 }

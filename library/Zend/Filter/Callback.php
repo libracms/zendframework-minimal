@@ -3,19 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Filter
  */
 
 namespace Zend\Filter;
 
 use Traversable;
 
-/**
- * @category   Zend
- * @package    Zend_Filter
- */
 class Callback extends AbstractFilter
 {
     /**
@@ -27,7 +22,8 @@ class Callback extends AbstractFilter
     );
 
     /**
-     * @param array|Traversable $options
+     * @param callable|array|Traversable $callbackOrOptions
+     * @param array $callbackParams
      */
     public function __construct($callbackOrOptions, $callbackParams = array())
     {
@@ -43,7 +39,8 @@ class Callback extends AbstractFilter
      * Sets a new callback for this filter
      *
      * @param  callable $callback
-     * @return Callback
+     * @throws Exception\InvalidArgumentException
+     * @return self
      */
     public function setCallback($callback)
     {

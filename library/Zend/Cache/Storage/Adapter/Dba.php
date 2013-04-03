@@ -3,14 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Cache
  */
 
 namespace Zend\Cache\Storage\Adapter;
 
 use stdClass;
+use Traversable;
 use Zend\Cache\Exception;
 use Zend\Cache\Storage\AvailableSpaceCapableInterface;
 use Zend\Cache\Storage\Capabilities;
@@ -116,7 +116,7 @@ class Dba extends AbstractAdapter implements
      */
     public function getTotalSpace()
     {
-        if ($this->totalSpace !== null) {
+        if ($this->totalSpace === null) {
             $pathname = $this->getOptions()->getPathname();
 
             if ($pathname === '') {
@@ -124,11 +124,12 @@ class Dba extends AbstractAdapter implements
             }
 
             ErrorHandler::start();
-            $total = disk_total_space($pathname);
+            $total = disk_total_space(dirname($pathname));
             $error = ErrorHandler::stop();
             if ($total === false) {
                 throw new Exception\RuntimeException("Can't detect total space of '{$pathname}'", 0, $error);
             }
+            $this->totalSpace = $total;
 
             // clean total space buffer on change pathname
             $events     = $this->getEventManager();
@@ -141,7 +142,7 @@ class Dba extends AbstractAdapter implements
                     $events->detach($handle);
                 }
             };
-            $handle = $events->attach($callback);
+            $handle = $events->attach('option', $callback);
         }
 
         return $this->totalSpace;
@@ -163,7 +164,7 @@ class Dba extends AbstractAdapter implements
         }
 
         ErrorHandler::start();
-        $avail = disk_free_space($pathname);
+        $avail = disk_free_space(dirname($pathname));
         $error = ErrorHandler::stop();
         if ($avail === false) {
             throw new Exception\RuntimeException("Can't detect free space of '{$pathname}'", 0, $error);
@@ -177,7 +178,7 @@ class Dba extends AbstractAdapter implements
     /**
      * Flush the whole storage
      *
-     * @return boolean
+     * @return bool
      */
     public function flush()
     {
@@ -209,11 +210,16 @@ class Dba extends AbstractAdapter implements
     /**
      * Remove items by given namespace
      *
-     * @param string $prefix
-     * @return boolean
+     * @param string $namespace
+     * @return bool
      */
     public function clearByNamespace($namespace)
     {
+        $namespace = (string) $namespace;
+        if ($namespace === '') {
+            throw new Exception\InvalidArgumentException('No namespace given');
+        }
+
         $prefix  = $namespace . $this->getOptions()->getNamespaceSeparator();
         $prefixl = strlen($prefix);
         $result  = true;
@@ -241,14 +247,20 @@ class Dba extends AbstractAdapter implements
      * Remove items matching given prefix
      *
      * @param string $prefix
-     * @return boolean
+     * @return bool
      */
     public function clearByPrefix($prefix)
     {
-        $options = $this->getOptions();
-        $prefix  = $options->getNamespace() . $options->getNamespaceSeparator() . $prefix;
-        $prefixl = strlen($prefix);
-        $result  = true;
+        $prefix = (string) $prefix;
+        if ($prefix === '') {
+            throw new Exception\InvalidArgumentException('No prefix given');
+        }
+
+        $options   = $this->getOptions();
+        $namespace = $options->getNamespace();
+        $prefix    = ($namespace === '') ? '' : $namespace . $options->getNamespaceSeparator() . $prefix;
+        $prefixL   = strlen($prefix);
+        $result    = true;
 
         $this->_open();
 
@@ -256,7 +268,7 @@ class Dba extends AbstractAdapter implements
             $recheck     = false;
             $internalKey = dba_firstkey($this->handle);
             while ($internalKey !== false && $internalKey !== null) {
-                if (substr($internalKey, 0, $prefixl) === $prefix) {
+                if (substr($internalKey, 0, $prefixL) === $prefix) {
                     $result = dba_delete($internalKey, $this->handle) && $result;
                     $recheck = true;
                 }
@@ -277,8 +289,9 @@ class Dba extends AbstractAdapter implements
      */
     public function getIterator()
     {
-        $options = $this->getOptions();
-        $prefix  = $options->getNamespace() . $options->getNamespaceSeparator();
+        $options   = $this->getOptions();
+        $namespace = $options->getNamespace();
+        $prefix    = ($namespace === '') ? '' : $namespace . $options->getNamespaceSeparator();
 
         return new DbaIterator($this, $this->handle, $prefix);
     }
@@ -288,7 +301,7 @@ class Dba extends AbstractAdapter implements
     /**
      * Optimize the storage
      *
-     * @return boolean
+     * @return bool
      * @return Exception\RuntimeException
      */
     public function optimize()
@@ -306,19 +319,19 @@ class Dba extends AbstractAdapter implements
      * Internal method to get an item.
      *
      * @param  string  $normalizedKey
-     * @param  boolean $success
+     * @param  bool $success
      * @param  mixed   $casToken
      * @return mixed Data on success, null on failure
      * @throws Exception\ExceptionInterface
      */
     protected function internalGetItem(& $normalizedKey, & $success = null, & $casToken = null)
     {
-        $options     = $this->getOptions();
-        $prefix      = $options->getNamespace() . $options->getNamespaceSeparator();
-        $internalKey = $prefix . $normalizedKey;
+        $options   = $this->getOptions();
+        $namespace = $options->getNamespace();
+        $prefix    = ($namespace === '') ? '' : $namespace . $options->getNamespaceSeparator();
 
         $this->_open();
-        $value = dba_fetch($internalKey, $this->handle);
+        $value = dba_fetch($prefix . $normalizedKey, $this->handle);
 
         if ($value === false) {
             $success = false;
@@ -334,17 +347,17 @@ class Dba extends AbstractAdapter implements
      * Internal method to test if an item exists.
      *
      * @param  string $normalizedKey
-     * @return boolean
+     * @return bool
      * @throws Exception\ExceptionInterface
      */
     protected function internalHasItem(& $normalizedKey)
     {
-        $options     = $this->getOptions();
-        $prefix      = $options->getNamespace() . $options->getNamespaceSeparator();
-        $internalKey = $prefix . $normalizedKey;
+        $options   = $this->getOptions();
+        $namespace = $options->getNamespace();
+        $prefix    = ($namespace === '') ? '' : $namespace . $options->getNamespaceSeparator();
 
         $this->_open();
-        return dba_exists($internalKey, $this->handle);
+        return dba_exists($prefix . $normalizedKey, $this->handle);
     }
 
     /* writing */
@@ -354,13 +367,14 @@ class Dba extends AbstractAdapter implements
      *
      * @param  string $normalizedKey
      * @param  mixed  $value
-     * @return boolean
+     * @return bool
      * @throws Exception\ExceptionInterface
      */
     protected function internalSetItem(& $normalizedKey, & $value)
     {
         $options     = $this->getOptions();
-        $prefix      = $options->getNamespace() . $options->getNamespaceSeparator();
+        $namespace   = $options->getNamespace();
+        $prefix      = ($namespace === '') ? '' : $namespace . $options->getNamespaceSeparator();
         $internalKey = $prefix . $normalizedKey;
 
         $this->_open();
@@ -376,13 +390,14 @@ class Dba extends AbstractAdapter implements
      *
      * @param  string $normalizedKey
      * @param  mixed  $value
-     * @return boolean
+     * @return bool
      * @throws Exception\ExceptionInterface
      */
     protected function internalAddItem(& $normalizedKey, & $value)
     {
         $options     = $this->getOptions();
-        $prefix      = $options->getNamespace() . $options->getNamespaceSeparator();
+        $namespace   = $options->getNamespace();
+        $prefix      = ($namespace === '') ? '' : $namespace . $options->getNamespaceSeparator();
         $internalKey = $prefix . $normalizedKey;
 
         $this->_open();
@@ -408,13 +423,14 @@ class Dba extends AbstractAdapter implements
      * Internal method to remove an item.
      *
      * @param  string $normalizedKey
-     * @return boolean
+     * @return bool
      * @throws Exception\ExceptionInterface
      */
     protected function internalRemoveItem(& $normalizedKey)
     {
         $options     = $this->getOptions();
-        $prefix      = $options->getNamespace() . $options->getNamespaceSeparator();
+        $namespace   = $options->getNamespace();
+        $prefix      = ($namespace === '') ? '' : $namespace . $options->getNamespaceSeparator();
         $internalKey = $prefix . $normalizedKey;
 
         $this->_open();
@@ -515,7 +531,7 @@ class Dba extends AbstractAdapter implements
     protected function _close()
     {
         if ($this->handle) {
-            ErrorHandler::start(E_WARNING);
+            ErrorHandler::start(E_NOTICE);
             dba_close($this->handle);
             ErrorHandler::stop();
             $this->handle = null;

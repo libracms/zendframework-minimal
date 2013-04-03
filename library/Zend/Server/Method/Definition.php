@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Server
  */
 
 namespace Zend\Server\Method;
@@ -14,10 +13,6 @@ use Zend\Server;
 
 /**
  * Method definition metadata
- *
- * @category   Zend
- * @package    Zend_Server
- * @subpackage Zend_Server_Method
  */
 class Definition
 {
@@ -106,6 +101,7 @@ class Definition
      * Set method callback
      *
      * @param  array|\Zend\Server\Method\Callback $callback
+     * @throws Server\Exception\InvalidArgumentException
      * @return \Zend\Server\Method\Definition
      */
     public function setCallback($callback)
@@ -133,6 +129,7 @@ class Definition
      * Add prototype to method definition
      *
      * @param  array|\Zend\Server\Method\Prototype $prototype
+     * @throws Server\Exception\InvalidArgumentException
      * @return \Zend\Server\Method\Definition
      */
     public function addPrototype($prototype)
@@ -209,6 +206,7 @@ class Definition
      * Set object to use with method calls
      *
      * @param  object $object
+     * @throws Server\Exception\InvalidArgumentException
      * @return \Zend\Server\Method\Definition
      */
     public function setObject($object)

@@ -8,12 +8,13 @@
     ],
     "autoload": {
         "psr-0": {
-            "Zend\\Di": ""
+            "Zend\\Di\\": ""
         }
     },
     "target-dir": "Zend/Di",
     "require": {
         "php": ">=5.3.3",
-        "zendframework/zend-code": "self.version"
+        "zendframework/zend-code": "self.version",
+        "zendframework/zend-stdlib": "self.version"
     }
 }

@@ -12,10 +12,7 @@
  * obtain it through the world-wide-web, please send an email
  * to license@zend.com so we can send you a copy immediately.
  *
- * @category   Zend
- * @package    Zend_Form
- * @subpackage Element
- * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 
@@ -23,16 +20,14 @@ namespace Zend\Form\Element;
 
 use Traversable;
 use Zend\Form\Element;
+use Zend\Form\ElementInterface;
+use Zend\Form\Exception\InvalidArgumentException;
 use Zend\InputFilter\InputProviderInterface;
 use Zend\Validator\Explode as ExplodeValidator;
 use Zend\Validator\InArray as InArrayValidator;
-use Zend\Validator\ValidatorInterface;
 
 /**
- * @category   Zend
- * @package    Zend_Form
- * @subpackage Element
- * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 class Select extends Element implements InputProviderInterface
@@ -47,9 +42,16 @@ class Select extends Element implements InputProviderInterface
     );
 
     /**
-     * @var ValidatorInterface
+     * @var \Zend\Validator\ValidatorInterface
      */
     protected $validator;
+
+    /**
+     * Create an empty option (option with label but no value). If set to null, no option is created
+     *
+     * @var bool
+     */
+    protected $emptyOption = null;
 
     /**
      * @var array
@@ -71,6 +73,22 @@ class Select extends Element implements InputProviderInterface
     public function setValueOptions(array $options)
     {
         $this->valueOptions = $options;
+
+        // Update InArrayValidator validator haystack
+        if (null !== $this->validator) {
+            if ($this->validator instanceof InArrayValidator){
+                $validator = $this->validator;
+            }
+            if ($this->validator instanceof ExplodeValidator
+                && $this->validator->getValidator() instanceof InArrayValidator
+            ){
+                $validator = $this->validator->getValidator();
+            }
+            if (!empty($validator)){
+                $validator->setHaystack($this->getValueOptionsValues());
+            }
+        }
+
         return $this;
     }
 
@@ -79,10 +97,11 @@ class Select extends Element implements InputProviderInterface
      * - label: label to associate with the element
      * - label_attributes: attributes to use when the label is rendered
      * - value_options: list of values and labels for the select options
+     * _ empty_option: should an empty option be prepended to the options ?
      *
      * @param  array|\Traversable $options
      * @return Select|ElementInterface
-     * @throws Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function setOptions($options)
     {
@@ -94,6 +113,10 @@ class Select extends Element implements InputProviderInterface
         // Alias for 'value_options'
         if (isset($this->options['options'])) {
             $this->setValueOptions($this->options['options']);
+        }
+
+        if (isset($this->options['empty_option'])) {
+            $this->setEmptyOption($this->options['empty_option']);
         }
 
         return $this;
@@ -118,9 +141,31 @@ class Select extends Element implements InputProviderInterface
     }
 
     /**
+     * Set the string for an empty option (can be empty string). If set to null, no option will be added
+     *
+     * @param  string|null $emptyOption
+     * @return Select
+     */
+    public function setEmptyOption($emptyOption)
+    {
+        $this->emptyOption = $emptyOption;
+        return $this;
+    }
+
+    /**
+     * Return the string for the empty option (null if none)
+     *
+     * @return string|null
+     */
+    public function getEmptyOption()
+    {
+        return $this->emptyOption;
+    }
+
+    /**
      * Get validator
      *
-     * @return ValidatorInterface
+     * @return \Zend\Validator\ValidatorInterface
      */
     protected function getValidator()
     {
@@ -172,12 +217,23 @@ class Select extends Element implements InputProviderInterface
      */
     protected function getValueOptionsValues()
     {
-        $values = array();
+        $values  = array();
         $options = $this->getValueOptions();
         foreach ($options as $key => $optionSpec) {
-            $value = (is_array($optionSpec)) ? $optionSpec['value'] : $key;
-            $values[] = $value;
+            if (is_array($optionSpec) && array_key_exists('options', $optionSpec)) {
+                foreach ($optionSpec['options'] as $nestedKey => $nestedOptionSpec) {
+                    $values[] = $this->getOptionValue($nestedKey, $nestedOptionSpec);
+                }
+                continue;
+            }
+
+            $values[] = $this->getOptionValue($key, $optionSpec);
         }
         return $values;
+    }
+
+    protected function getOptionValue($key, $optionSpec)
+    {
+        return is_array($optionSpec) ? $optionSpec['value'] : $key;
     }
 }

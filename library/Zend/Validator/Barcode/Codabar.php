@@ -3,17 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Validator
  */
 
 namespace Zend\Validator\Barcode;
 
-/**
- * @category   Zend
- * @package    Zend_Validate
- */
 class Codabar extends AbstractAdapter
 {
     /**
@@ -32,7 +27,6 @@ class Codabar extends AbstractAdapter
      */
     public function hasValidCharacters($value)
     {
-        $first = $value[0];
         if (strpbrk($value, 'ABCD')) {
             $first = $value[0];
             if (!strpbrk($first, 'ABCD')) {

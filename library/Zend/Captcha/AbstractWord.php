@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Captcha
  */
 
 namespace Zend\Captcha;
@@ -17,10 +16,6 @@ use Zend\Math\Rand;
  * AbstractWord-based captcha adapter
  *
  * Generates random word which user should recognise
- *
- * @category   Zend
- * @package    Zend_Captcha
- * @subpackage Adapter
  */
 abstract class AbstractWord extends AbstractAdapter
 {
@@ -64,14 +59,14 @@ abstract class AbstractWord extends AbstractAdapter
     /**
      * Should the numbers be used or only letters
      *
-     * @var boolean
+     * @var bool
      */
     protected $useNumbers = true;
 
     /**
      * Should both cases be used or only lowercase
      *
-     * @var boolean
+     * @var bool
      */
     // protected $useCase = false;
 
@@ -85,7 +80,7 @@ abstract class AbstractWord extends AbstractAdapter
     /**
      * Should generate() keep session or create a new one?
      *
-     * @var boolean
+     * @var bool
      */
     protected $keepSession = false;
 
@@ -208,7 +203,7 @@ abstract class AbstractWord extends AbstractAdapter
     /**
      * Sets if session should be preserved on generate()
      *
-     * @param $keepSession Should session be kept on generate()?
+     * @param bool $keepSession Should session be kept on generate()?
      * @return AbstractWord
      */
     public function setKeepSession($keepSession)
@@ -242,6 +237,7 @@ abstract class AbstractWord extends AbstractAdapter
     /**
      * Get session object
      *
+     * @throws Exception\InvalidArgumentException
      * @return Container
      */
     public function getSession()
@@ -310,8 +306,8 @@ abstract class AbstractWord extends AbstractAdapter
     {
         $word       = '';
         $wordLen    = $this->getWordLen();
-        $vowels     = $this->useNumbers ? self::$VN : self::$V;
-        $consonants = $this->useNumbers ? self::$CN : self::$C;
+        $vowels     = $this->useNumbers ? static::$VN : static::$V;
+        $consonants = $this->useNumbers ? static::$CN : static::$C;
 
         for ($i=0; $i < $wordLen; $i = $i + 2) {
             // generate word with mix of vowels and consonants
@@ -359,15 +355,16 @@ abstract class AbstractWord extends AbstractAdapter
      *
      * @see    Zend\Validator\ValidatorInterface::isValid()
      * @param  mixed $value
+     * @param  mixed $context
      * @return bool
      */
     public function isValid($value, $context = null)
     {
-        if (!is_array($value) && !is_array($context)) {
-            $this->error(self::MISSING_VALUE);
-            return false;
-        }
-        if (!is_array($value) && is_array($context)) {
+        if (!is_array($value)) {
+            if (!is_array($context)) {
+                $this->error(self::MISSING_VALUE);
+                return false;
+            }
             $value = $context;
         }
 

@@ -3,26 +3,21 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Feed
  */
 
 namespace Zend\Feed\Reader\Extension\Atom;
 
-use DateTime;
 use DOMDocument;
 use DOMElement;
 use stdClass;
 use Zend\Feed\Reader;
 use Zend\Feed\Reader\Collection;
 use Zend\Feed\Reader\Extension;
+use Zend\Stdlib\DateTime;
 use Zend\Uri;
 
-/**
-* @category Zend
-* @package Reader\Reader
-*/
 class Entry extends Extension\AbstractEntry
 {
     /**
@@ -45,7 +40,7 @@ class Entry extends Extension\AbstractEntry
     /**
      * Get an array with feed authors
      *
-     * @return array
+     * @return Collection\Author
      */
     public function getAuthors()
     {
@@ -73,7 +68,7 @@ class Entry extends Extension\AbstractEntry
         }
 
         if (count($authors) == 0) {
-            $authors = null;
+            $authors = new Collection\Author();
         } else {
             $authors = new Collection\Author(
                 Reader\Reader::arrayUnique($authors)
@@ -175,7 +170,7 @@ class Entry extends Extension\AbstractEntry
         }
 
         if ($dateCreated) {
-            $date = DateTime::createFromFormat(DateTime::ISO8601, $dateCreated);
+            $date = DateTime::createFromISO8601($dateCreated);
         }
 
         $this->data['datecreated'] = $date;
@@ -203,7 +198,7 @@ class Entry extends Extension\AbstractEntry
         }
 
         if ($dateModified) {
-            $date = DateTime::createFromFormat(DateTime::ISO8601, $dateModified);
+            $date = DateTime::createFromISO8601($dateModified);
         }
 
         $this->data['datemodified'] = $date;
@@ -453,6 +448,7 @@ class Entry extends Extension\AbstractEntry
     /**
      * Returns a URI pointing to a feed of all comments for this entry
      *
+     * @param string $type
      * @return string
      */
     public function getCommentFeedLink($type = 'atom')
@@ -464,7 +460,7 @@ class Entry extends Extension\AbstractEntry
         $link = null;
 
         $list = $this->getXpath()->query(
-            $this->getXpathPrefix() . '//atom:link[@rel="replies" and @type="application/'.$type.'+xml"]/@href'
+            $this->getXpathPrefix() . '//atom:link[@rel="replies" and @type="application/' . $type.'+xml"]/@href'
         );
 
         if ($list->length) {
@@ -612,6 +608,8 @@ class Entry extends Extension\AbstractEntry
 
     /**
      * Detect the presence of any Atom namespaces in use
+     *
+     * @return string
      */
     protected function getAtomType()
     {

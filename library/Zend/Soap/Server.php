@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Soap
  */
 
 namespace Zend\Soap;
@@ -13,16 +12,13 @@ namespace Zend\Soap;
 use DOMDocument;
 use DOMNode;
 use SimpleXMLElement;
+use SoapFault;
 use stdClass;
 use Traversable;
 use Zend\Stdlib\ArrayUtils;
 
 /**
  * Zend_Soap_Server
- *
- * @category   Zend
- * @package    Zend_Soap
- * @subpackage Server
  */
 class Server implements \Zend\Server\Server
 {
@@ -110,7 +106,7 @@ class Server implements \Zend\Server\Server
     /**
      * Flag: whether or not {@link handle()} should return a response instead
      * of automatically emitting it.
-     * @var boolean
+     * @var bool
      */
     protected $returnResponse = false;
 
@@ -197,8 +193,6 @@ class Server implements \Zend\Server\Server
                 case 'wsdl':
                     $this->setWSDL($value);
                     break;
-                case 'featues':
-                    trigger_error(__METHOD__ . ': the option "featues" is deprecated as of 1.10.x and will be removed with 2.0.0; use "features" instead', E_USER_NOTICE);
                 case 'features':
                     $this->setSoapFeatures($value);
                     break;
@@ -385,7 +379,7 @@ class Server implements \Zend\Server\Server
         if (!is_array($classmap)) {
             throw new Exception\InvalidArgumentException('Classmap must be an array');
         }
-        foreach ($classmap as $type => $class) {
+        foreach ($classmap as $class) {
             if (!class_exists($class)) {
                 throw new Exception\InvalidArgumentException('Invalid class in class map');
             }
@@ -452,7 +446,7 @@ class Server implements \Zend\Server\Server
     /**
      * Set the SOAP WSDL Caching Options
      *
-     * @param string|int|boolean $options
+     * @param string|int|bool $options
      * @return Server
      */
     public function setWSDLCache($options)
@@ -557,6 +551,7 @@ class Server implements \Zend\Server\Server
      * Accepts an instanciated object to use when handling requests.
      *
      * @param object $object
+     * @throws Exception\InvalidArgumentException
      * @return Server
      */
     public function setObject($object)
@@ -599,7 +594,7 @@ class Server implements \Zend\Server\Server
     /**
      * Unimplemented: Load server definition
      *
-     * @param array $array
+     * @param array $definition
      * @return void
      * @throws Exception\RuntimeException Unimplemented
      */
@@ -612,6 +607,7 @@ class Server implements \Zend\Server\Server
      * Set server persistence
      *
      * @param int $mode
+     * @throws Exception\InvalidArgumentException
      * @return Server
      */
     public function setPersistence($mode)
@@ -627,7 +623,7 @@ class Server implements \Zend\Server\Server
     /**
      * Get server persistence
      *
-     * @return Server
+     * @return int
      */
     public function getPersistence()
     {
@@ -645,6 +641,7 @@ class Server implements \Zend\Server\Server
      * - string; if so, verifies XML
      *
      * @param DOMDocument|DOMNode|SimpleXMLElement|stdClass|string $request
+     * @throws Exception\InvalidArgumentException
      * @return Server
      */
     protected function _setRequest($request)
@@ -697,7 +694,7 @@ class Server implements \Zend\Server\Server
      *
      * The response is always available via {@link getResponse()}.
      *
-     * @param boolean $flag
+     * @param  bool $flag
      * @return Server
      */
     public function setReturnResponse($flag = true)
@@ -709,7 +706,7 @@ class Server implements \Zend\Server\Server
     /**
      * Retrieve return response flag
      *
-     * @return boolean
+     * @return bool
      */
     public function getReturnResponse()
     {
@@ -733,7 +730,7 @@ class Server implements \Zend\Server\Server
      * SoapServer object, and then registers any functions or class with it, as
      * well as persistence.
      *
-     * @return SoapServer
+     * @return \SoapServer
      */
     protected function _getSoap()
     {
@@ -798,41 +795,52 @@ class Server implements \Zend\Server\Server
 
         $soap = $this->_getSoap();
 
-        $fault = false;
-        ob_start();
+        $fault          = false;
+        $this->response = '';
+
         if ($setRequestException instanceof \Exception) {
             // Create SOAP fault message if we've caught a request exception
             $fault = $this->fault($setRequestException->getMessage(), 'Sender');
-        } else {
+        }
+        if (!$setRequestException instanceof \Exception) {
+            ob_start();
             try {
                 $soap->handle($this->request);
             } catch (\Exception $e) {
                 $fault = $this->fault($e);
             }
+            $this->response = ob_get_clean();
         }
-        $this->response = ob_get_clean();
 
         // Restore original error handler
         restore_error_handler();
         ini_set('display_errors', $displayErrorsOriginalState);
 
         // Send a fault, if we have one
-        if ($fault) {
-            $this->response = $fault;
+        if ($fault instanceof SoapFault && !$this->returnResponse) {
+            $soap->fault($fault->faultcode, $fault->getMessage());
+            return;
         }
 
+        // Echo the response, if we're not returning it
         if (!$this->returnResponse) {
             echo $this->response;
             return;
         }
 
+        // Return a fault, if we have it
+        if ($fault instanceof SoapFault) {
+            return $fault;
+        }
+
+        // Return the response
         return $this->response;
     }
 
     /**
      * Method initializes the error context that the SOAPServer environment will run in.
      *
-     * @return boolean display_errors original value
+     * @return bool display_errors original value
      */
     protected function _initializeSoapErrorContext()
     {
@@ -858,7 +866,7 @@ class Server implements \Zend\Server\Server
      * Deregister a fault exception from the fault exception stack
      *
      * @param  string $class
-     * @return boolean
+     * @return bool
      */
     public function deregisterFaultException($class)
     {
@@ -891,7 +899,7 @@ class Server implements \Zend\Server\Server
      * {@Link registerFaultException()}.
      *
      * @link   http://www.w3.org/TR/soap12-part1/#faultcodes
-     * @param  string|Exception $fault
+     * @param  string|\Exception $fault
      * @param  string $code SOAP Fault Codes
      * @return SoapFault
      */
@@ -920,7 +928,7 @@ class Server implements \Zend\Server\Server
             $code = "Receiver";
         }
 
-        return new \SoapFault($code, $message);
+        return new SoapFault($code, $message);
     }
 
     /**

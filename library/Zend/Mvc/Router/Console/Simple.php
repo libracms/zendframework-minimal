@@ -12,9 +12,6 @@
  * obtain it through the world-wide-web, please send an email
  * to license@zend.com so we can send you a copy immediately.
  *
- * @category   Zend
- * @package    Zend_Mvc_Router
- * @subpackage Http
  * @copyright  Copyright (c) 2005-2010 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
@@ -36,11 +33,9 @@ use Zend\Mvc\Exception\InvalidArgumentException;
 /**
  * Segment route.
  *
- * @package    Zend_Mvc_Router
- * @subpackage Http
  * @copyright  Copyright (c) 2005-2010 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @see        http://manuals.rubyonrails.com/read/chapter/65
+ * @see        http://guides.rubyonrails.org/routing.html
  */
 class Simple implements RouteInterface
 {
@@ -118,7 +113,7 @@ class Simple implements RouteInterface
                     'filters' => $filters
                 ));
             } else {
-                throw new InvalidArgumentException('Cannot use '.gettype($filters).' as filters for '.__CLASS__);
+                throw new InvalidArgumentException('Cannot use ' . gettype($filters) . ' as filters for ' . __CLASS__);
             }
         }
 
@@ -128,10 +123,10 @@ class Simple implements RouteInterface
             } elseif ($validators instanceof Traversable || is_array($validators)) {
                 $this->validators = new ValidatorChain();
                 foreach ($validators as $v) {
-                    $this->validators->addValidator($v);
+                    $this->validators->attach($v);
                 }
             } else {
-                throw new InvalidArgumentException('Cannot use '.gettype($validators).' as validators for '.__CLASS__);
+                throw new InvalidArgumentException('Cannot use ' . gettype($validators) . ' as validators for ' . __CLASS__);
             }
         }
 
@@ -292,14 +287,14 @@ class Simple implements RouteInterface
             )
             ) {
                 // extract available options
-                $options = preg_split('/ *\| */',trim($m['options']),0,PREG_SPLIT_NO_EMPTY);
+                $options = preg_split('/ *\| */', trim($m['options']), 0, PREG_SPLIT_NO_EMPTY);
 
                 // remove dupes
                 array_unique($options);
 
                 // prepare item
                 $item = array(
-                    'name'          => isset($m['groupName']) ? $m['groupName'] : 'unnamedGroup'.$unnamedGroupCounter++,
+                    'name'          => isset($m['groupName']) ? $m['groupName'] : 'unnamedGroup' . $unnamedGroupCounter++,
                     'literal'       => true,
                     'required'      => false,
                     'positional'    => true,
@@ -331,14 +326,14 @@ class Simple implements RouteInterface
                 /sx', $def, $m, 0, $pos
             )) {
                 // extract available options
-                $options = preg_split('/ *\| */',trim($m['options']),0,PREG_SPLIT_NO_EMPTY);
+                $options = preg_split('/ *\| */', trim($m['options']), 0, PREG_SPLIT_NO_EMPTY);
 
                 // remove dupes
                 array_unique($options);
 
                 // prepare item
                 $item = array(
-                    'name'          => isset($m['groupName']) ? $m['groupName']:'unnamedGroupAt'.$unnamedGroupCounter++,
+                    'name'          => isset($m['groupName']) ? $m['groupName']:'unnamedGroupAt' . $unnamedGroupCounter++,
                     'literal'       => true,
                     'required'      => true,
                     'positional'    => true,
@@ -369,17 +364,19 @@ class Simple implements RouteInterface
                 /sx', $def, $m, 0, $pos
             )) {
                 // extract available options
-                $options = preg_split('/ *\| */',trim($m['options']),0,PREG_SPLIT_NO_EMPTY);
+                $options = preg_split('/ *\| */', trim($m['options']), 0, PREG_SPLIT_NO_EMPTY);
 
                 // remove dupes
                 array_unique($options);
 
                 // remove prefix
-                array_walk($options,function(&$val,$key) {$val = ltrim($val,'-');});
+                array_walk($options, function (&$val, $key) {
+                    $val = ltrim($val, '-');
+                });
 
                 // prepare item
                 $item = array(
-                    'name'          => isset($m['groupName']) ? $m['groupName']:'unnamedGroupAt'.$unnamedGroupCounter++,
+                    'name'          => isset($m['groupName']) ? $m['groupName']:'unnamedGroupAt' . $unnamedGroupCounter++,
                     'literal'       => false,
                     'required'      => true,
                     'positional'    => false,
@@ -410,17 +407,19 @@ class Simple implements RouteInterface
                 /sx', $def, $m, 0, $pos
             )) {
                 // extract available options
-                $options = preg_split('/ *\| */',trim($m['options']),0,PREG_SPLIT_NO_EMPTY);
+                $options = preg_split('/ *\| */', trim($m['options']), 0, PREG_SPLIT_NO_EMPTY);
 
                 // remove dupes
                 array_unique($options);
 
                 // remove prefix
-                array_walk($options,function(&$val,$key) {$val = ltrim($val,'-');});
+                array_walk($options, function (&$val, $key) {
+                    $val = ltrim($val, '-');
+                });
 
                 // prepare item
                 $item = array(
-                    'name'          => isset($m['groupName']) ? $m['groupName']:'unnamedGroupAt'.$unnamedGroupCounter++,
+                    'name'          => isset($m['groupName']) ? $m['groupName']:'unnamedGroupAt' . $unnamedGroupCounter++,
                     'literal'       => false,
                     'required'      => false,
                     'positional'    => false,
@@ -558,7 +557,7 @@ class Simple implements RouteInterface
             if (isset($part['alternatives'])) {
                 // an alternative of flags
                 $regex = '/^\-+(?<name>';
-                $regex .= join('|',$part['alternatives']);
+                $regex .= join('|', $part['alternatives']);
 
                 if ($part['hasValue']) {
                     $regex .= ')(?:\=(?<value>.*?)$)?$/';
@@ -570,16 +569,16 @@ class Simple implements RouteInterface
                 if ($part['short'] === true) {
                     // short variant
                     if ($part['hasValue']) {
-                        $regex = '/^\-'.$part['name'].'(?:\=(?<value>.*?)$)?$/';
+                        $regex = '/^\-' . $part['name'] . '(?:\=(?<value>.*?)$)?$/';
                     } else {
-                        $regex = '/^\-'.$part['name'].'$/';
+                        $regex = '/^\-' . $part['name'] . '$/';
                     }
                 } elseif ($part['short'] === false) {
                     // long variant
                     if ($part['hasValue']) {
-                        $regex = '/^\-{2,}'.$part['name'].'(?:\=(?<value>.*?)$)?$/';
+                        $regex = '/^\-{2,}' . $part['name'] . '(?:\=(?<value>.*?)$)?$/';
                     } else {
-                        $regex = '/^\-{2,}'.$part['name'].'$/';
+                        $regex = '/^\-{2,}' . $part['name'] . '$/';
                     }
                 }
             }
@@ -588,13 +587,13 @@ class Simple implements RouteInterface
              * Look for param
              */
             $value = $param = null;
-            for ($x=0;$x<count($params);$x++) {
-                if (preg_match($regex,$params[$x],$m)) {
+            for ($x = 0, $count = count($params); $x < $count; $x++) {
+                if (preg_match($regex, $params[$x], $m)) {
                     // found param
                     $param = $params[$x];
 
                     // prevent further scanning of this param
-                    array_splice($params,$x,1);
+                    array_splice($params, $x, 1);
 
                     if (isset($m['value'])) {
                         $value = $m['value'];
@@ -642,7 +641,7 @@ class Simple implements RouteInterface
                     $value = $params[$x];
 
                     // prevent further scanning of this param
-                    array_splice($params,$x,1);
+                    array_splice($params, $x, 1);
                 } else {
                     // there are no more params available
                     return;
@@ -654,7 +653,7 @@ class Simple implements RouteInterface
              */
             if ($part['hasValue'] && isset($this->constraints[$part['name']])) {
                 if (
-                    !preg_match($this->constraints[$part['name']],$value)
+                    !preg_match($this->constraints[$part['name']], $value)
                 ) {
                     // constraint failed
                     return;
@@ -698,7 +697,7 @@ class Simple implements RouteInterface
          * Scan for left-out flags that should result in a mismatch
          */
         foreach ($params as $param) {
-            if (preg_match('#^\-+#',$param)) {
+            if (preg_match('#^\-+#', $param)) {
                 return; // there is an unrecognized flag
             }
         }
@@ -728,7 +727,7 @@ class Simple implements RouteInterface
              */
             if ($part['literal']) {
                 if (
-                    (isset($part['alternatives']) && !in_array($value,$part['alternatives'])) ||
+                    (isset($part['alternatives']) && !in_array($value, $part['alternatives'])) ||
                     (!isset($part['alternatives']) && $value != $part['name'])
                 ) {
                     return;
@@ -740,7 +739,7 @@ class Simple implements RouteInterface
              */
             if ($part['hasValue'] && isset($this->constraints[$part['name']])) {
                 if (
-                    !preg_match($this->constraints[$part['name']],$value)
+                    !preg_match($this->constraints[$part['name']], $value)
                 ) {
                     // constraint failed
                     return;

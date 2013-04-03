@@ -3,22 +3,16 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Console
  */
 
 namespace Zend\Console;
 
 use Zend\Stdlib\Message;
 use Zend\Stdlib\Parameters;
-use Zend\Stdlib\ParametersInterface;
 use Zend\Stdlib\RequestInterface;
 
-/**
- * @category   Zend
- * @package    Zend_Console
- */
 class Request extends Message implements RequestInterface
 {
     /**
@@ -39,7 +33,9 @@ class Request extends Message implements RequestInterface
     /**
      * Create a new CLI request
      *
-     * @param array|null $args     Console arguments. If not supplied, $_SERVER['argv'] will be used
+     * @param array|null $args Console arguments. If not supplied, $_SERVER['argv'] will be used
+     * @param array|null $env Environment data. If not supplied, $_ENV will be used
+     * @throws Exception\RuntimeException
      */
     public function __construct(array $args = null, array $env = null)
     {
@@ -162,7 +158,7 @@ class Request extends Message implements RequestInterface
      */
     public function toString()
     {
-        return trim(implode(' ',$this->params()->toArray()));
+        return trim(implode(' ', $this->params()->toArray()));
     }
 
     /**
@@ -190,5 +186,4 @@ class Request extends Message implements RequestInterface
     {
         return $this->scriptName;
     }
-
 }

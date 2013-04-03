@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Json
  */
 
 namespace Zend\Json\Server;
@@ -13,11 +12,6 @@ namespace Zend\Json\Server;
 use Zend\Json\Server\Exception\InvalidArgumentException;
 use Zend\Json\Server\Exception\RuntimeException;
 
-/**
- * @category   Zend
- * @package    Zend_Json
- * @subpackage Server
- */
 class Smd
 {
     const ENV_JSONRPC_1 = 'JSON-RPC-1.0';
@@ -114,6 +108,7 @@ class Smd
      * Set transport
      *
      * @param  string $transport
+     * @throws Exception\InvalidArgumentException
      * @return \Zend\Json\Server\Smd
      */
     public function setTransport($transport)
@@ -139,6 +134,7 @@ class Smd
      * Set envelope
      *
      * @param  string $envelopeType
+     * @throws Exception\InvalidArgumentException
      * @return Smd
      */
     public function setEnvelope($envelopeType)
@@ -165,6 +161,7 @@ class Smd
      * Set content type
      *
      * @param  string $type
+     * @throws Exception\InvalidArgumentException
      * @return \Zend\Json\Server\Smd
      */
     public function setContentType($type)
@@ -211,7 +208,7 @@ class Smd
     /**
      * Set service ID
      *
-     * @param  string $Id
+     * @param  string $id
      * @return Smd
      */
     public function setId($id)
@@ -278,6 +275,8 @@ class Smd
      * Add Service
      *
      * @param Smd\Service|array $service
+     * @throws Exception\RuntimeException
+     * @throws Exception\InvalidArgumentException
      * @return Smd
      */
     public function addService($service)
@@ -328,7 +327,7 @@ class Smd
      * Get service object
      *
      * @param  string $name
-     * @return boolean|Smd\Service
+     * @return bool|Smd\Service
      */
     public function getService($name)
     {
@@ -352,7 +351,7 @@ class Smd
      * Remove service
      *
      * @param  string $name
-     * @return boolean
+     * @return bool
      */
     public function removeService($name)
     {
@@ -377,7 +376,7 @@ class Smd
         $transport   = $this->getTransport();
         $envelope    = $this->getEnvelope();
         $contentType = $this->getContentType();
-        $SMDVersion  = self::SMD_VERSION;
+        $SMDVersion  = static::SMD_VERSION;
         $service = compact('transport', 'envelope', 'contentType', 'SMDVersion');
 
         if (null !== ($target = $this->getTarget())) {

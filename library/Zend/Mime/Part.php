@@ -3,18 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Mime
  */
 
 namespace Zend\Mime;
 
 /**
  * Class representing a MIME part.
- *
- * @category   Zend
- * @package    Zend_Mime
  */
 class Part
 {
@@ -70,10 +66,11 @@ class Part
      * if this was created with a stream, return a filtered stream for
      * reading the content. very useful for large file attachments.
      *
+     * @param string $EOL
      * @return stream
      * @throws Exception\RuntimeException if not a stream or unable to append filter
      */
-    public function getEncodedStream()
+    public function getEncodedStream($EOL = Mime::LINEEND)
     {
         if (!$this->isStream) {
             throw new Exception\RuntimeException('Attempt to get a stream from a string part');
@@ -88,7 +85,7 @@ class Part
                     STREAM_FILTER_READ,
                     array(
                         'line-length'      => 76,
-                        'line-break-chars' => Mime::LINEEND
+                        'line-break-chars' => $EOL
                     )
                 );
                 if (!is_resource($filter)) {
@@ -102,7 +99,7 @@ class Part
                     STREAM_FILTER_READ,
                     array(
                         'line-length'      => 76,
-                        'line-break-chars' => Mime::LINEEND
+                        'line-break-chars' => $EOL
                     )
                 );
                 if (!is_resource($filter)) {
@@ -117,15 +114,15 @@ class Part
     /**
      * Get the Content of the current Mime Part in the given encoding.
      *
-     * @return String
+     * @param string $EOL
+     * @return string
      */
     public function getContent($EOL = Mime::LINEEND)
     {
         if ($this->isStream) {
-            return stream_get_contents($this->getEncodedStream());
-        } else {
-            return Mime::encode($this->content, $this->encoding, $EOL);
+            return stream_get_contents($this->getEncodedStream($EOL));
         }
+        return Mime::encode($this->content, $this->encoding, $EOL);
     }
 
     /**
@@ -136,15 +133,15 @@ class Part
     {
         if ($this->isStream) {
             return stream_get_contents($this->content);
-        } else {
-            return $this->content;
         }
+        return $this->content;
     }
 
     /**
      * Create and return the array of headers for this MIME part
      *
      * @access public
+     * @param string $EOL
      * @return array
      */
     public function getHeadersArray($EOL = Mime::LINEEND)
@@ -197,6 +194,7 @@ class Part
     /**
      * Return the headers for this part as a string
      *
+     * @param string $EOL
      * @return String
      */
     public function getHeaders($EOL = Mime::LINEEND)

@@ -8,12 +8,13 @@
     ],
     "autoload": {
         "psr-0": {
-            "Zend\\Session": ""
+            "Zend\\Session\\": ""
         }
     },
     "target-dir": "Zend/Session",
     "require": {
-        "php": ">=5.3.3"
+        "php": ">=5.3.3",
+        "zendframework/zend-stdlib": "self.version"
     },
     "suggest": {
         "zendframework/zend-validator": "Zend\\Validator component",

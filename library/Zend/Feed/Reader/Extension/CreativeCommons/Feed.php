@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Feed
  */
 
 namespace Zend\Feed\Reader\Extension\CreativeCommons;
@@ -13,15 +12,12 @@ namespace Zend\Feed\Reader\Extension\CreativeCommons;
 use Zend\Feed\Reader;
 use Zend\Feed\Reader\Extension;
 
-/**
-* @category Zend
-* @package Reader\Reader
-*/
 class Feed extends Extension\AbstractFeed
 {
     /**
      * Get the entry license
      *
+     * @param int $index
      * @return string|null
      */
     public function getLicense($index = 0)
@@ -43,12 +39,12 @@ class Feed extends Extension\AbstractFeed
     public function getLicenses()
     {
         $name = 'licenses';
-        if (array_key_exists($name, $this->_data)) {
-            return $this->_data[$name];
+        if (array_key_exists($name, $this->data)) {
+            return $this->data[$name];
         }
 
         $licenses = array();
-        $list = $this->_xpath->evaluate('channel/cc:license');
+        $list = $this->xpath->evaluate('channel/cc:license');
 
         if ($list->length) {
             foreach ($list as $license) {
@@ -58,9 +54,9 @@ class Feed extends Extension\AbstractFeed
             $licenses = array_unique($licenses);
         }
 
-        $this->_data[$name] = $licenses;
+        $this->data[$name] = $licenses;
 
-        return $this->_data[$name];
+        return $this->data[$name];
     }
 
     /**
@@ -68,8 +64,8 @@ class Feed extends Extension\AbstractFeed
      *
      * @return void
      */
-    protected function _registerNamespaces()
+    protected function registerNamespaces()
     {
-        $this->_xpath->registerNamespace('cc', 'http://backend.userland.com/creativeCommonsRssModule');
+        $this->xpath->registerNamespace('cc', 'http://backend.userland.com/creativeCommonsRssModule');
     }
 }

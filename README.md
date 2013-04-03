@@ -1,61 +1,66 @@
-### Welcome to the *Zend Framework 2.0.0* Release!
+### Welcome to the *Zend Framework 2.1* Release!
 
 Master: [![Build Status](https://secure.travis-ci.org/zendframework/zf2.png?branch=master)](http://travis-ci.org/zendframework/zf2)
+Develop: [![Build Status](https://secure.travis-ci.org/zendframework/zf2.png?branch=develop)](http://travis-ci.org/zendframework/zf2)
 
 ## RELEASE INFORMATION
 
-*Zend Framework 2.0.0*
+*Zend Framework 2.1.0*
 
-This is the first stable release of the new version 2 release branch.
+This is the first minor (feature) release for the version 2 series.
 
-04 September 2012
+29 Jan 2013
 
-### NEW IN ZEND FRAMEWORK 2
+### UPDATES IN 2.1.0
 
-New and/or refactored components include:
+#### Backwards Compatibility Break: Session Storage
 
-- EventManager - provides subject/observer, pubsub, aspect-oriented programming,
-  signal slots, and event systems for your applications.
-- ServiceManager - provides an Inversion of Control (IoC) container for managing
-  object life-cycles and dependencies via a configurable and programmable
-  interface.
-- DI - provides a Dependency Injection Container, another form of IoC.
-- MVC - a newly written MVC layer for ZF2, using controllers as services, and
-  wiring everything together using events.
-- ModuleManager - a solution for providing plug-and-play functionality for
-  either MVC applications or any application requiring pluggable 3rd party code.
-  Within ZF2, the ModuleManager provides the MVC with services, and assists in
-  wiring events.
-- Loader - provides new options for autoloading, including standard, performant
-  PSR-0 loading and class-map-based autoloading.
-- Code - provides support for code reflection, static code scanning, and
-  annotation parsing.
-- Config - more performant and more flexible configuration parsing and creation.
-- Escaper - a new component for providing context-specific escaping solutions
-  for HTML, HTML attributes, CSS, JavaScript, and combinations of contexts as
-  well.
-- HTTP - rewritten to provide better header, request, and response abstraction.
-- I18n - a brand new internationalization and localization layer built on top of
-  PHP's ext/intl extension.
-- InputFilter - a new component for providing normalization and validation of
-  sets of data.
-- Form - rewritten from the ground up to properly separate validation, domain
-  modeling, and presentation concerns. Allows binding objects to forms, defining
-  forms and input filters via annotations, and more.
-- Log - rewritten to be more flexible and provide better capabilities
-  surrounding message formats and filtering.
-- Mail - rewritten to separate concerns more cleanly between messages and
-  transports.
-- Session - rewritten to make testing easier, as well as to make it more
-  configurable for end users.
-- Uri - rewritten to provide a cleaner, more object oriented interface.
+The default session storage object has changed from
+`Zend\Session\Storage\SessionStorage` to an array adapter
+(`Zend\Session\Storage\SessionArrayStorage`; this is a minimal break in
+compatibility.  Most developers are not working directly with the storage
+object, but rather a `Zend\Session\Container`; as a result, switching out the
+default will not cause compatibility problems for most developers.
 
-Many components have been ported from Zend Framework 1, and operate in
-practically identical manners to their 1.X equivalent. Others, such as the
-service components, have been moved to their own repositories to ensure that as
-APIs change, they do not need to wait on the framework to release new versions.
+The change was introduced to alleviate issues when working with 3rd party
+libraries that access nested members of the `$_SESSION` superglobal.
 
-Welcome to a new generation of Zend Framework!
+Those affected will be those (a) directly accessing the storage instance, and
+(b) using object notation to access session members:
+
+```php
+    $foo = null;
+
+    /** @var $storage Zend\Session\Storage\SessionStorage */
+    if (isset($storage->foo)) {
+        $foo = $storage->foo;
+    }
+```
+
+If you are using array notation, as in the following example, your code remains
+forwards compatible:
+
+```php
+    $foo = null;
+
+    /** @var $storage Zend\Session\Storage\SessionStorage */
+    if (isset($storage['foo'])) {
+        $foo = $storage['foo'];
+    }
+```
+
+If you are not working directly with the storage instance, you will be
+unaffected.
+
+For those affected, the following courses of action are possible:
+
+- Update your code to replace object property notation with array notation, OR
+- Initialize and register a `Zend\Session\Storage\SessionStorage` object
+  explicitly with the session manager instance.
+
+#### Other updates in 2.1.0
+
+Please see CHANGELOG.md.
 
 ### SYSTEM REQUIREMENTS
 
@@ -68,8 +73,8 @@ Please see INSTALL.md.
 
 ### CONTRIBUTING
 
-If you wish to contribute to Zend Framework 2.0, please read both the
-README-DEV.md and README-GIT.md file.
+If you wish to contribute to Zend Framework, please read both the
+CONTRIBUTING.md and README-GIT.md file.
 
 ### QUESTIONS AND FEEDBACK
 
@@ -77,13 +82,13 @@ Online documentation can be found at http://framework.zend.com/manual.
 Questions that are not addressed in the manual should be directed to the
 appropriate mailing list:
 
-http://framework.zend.com/wiki/display/ZFDEV/Mailing+Lists
+http://framework.zend.com/archives/subscribe/
 
 If you find code in this release behaving in an unexpected manner or
-contrary to its documented behavior, please create an issue in the Zend
-Framework issue tracker at:
+contrary to its documented behavior, please create an issue in our GitHub
+issue tracker:
 
-http://framework.zend.com/issues/browse/ZF2
+https://github.com/zendframework/zf2/issues
 
 If you would like to be notified of new releases, you can subscribe to
 the fw-announce mailing list by sending a blank message to

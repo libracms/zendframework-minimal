@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Cache
  */
 
 namespace Zend\Cache\Storage;
@@ -15,11 +14,6 @@ use stdClass;
 use Zend\Cache\Exception;
 use Zend\EventManager\EventsCapableInterface;
 
-/**
- * @category   Zend
- * @package    Zend_Cache
- * @subpackage Storage
- */
 class Capabilities
 {
     /**
@@ -49,7 +43,7 @@ class Capabilities
     * If it's NULL the capability isn't set and the getter
     * returns the base capability or the default value.
      *
-     * @var null|boolean
+     * @var null|bool
      */
     protected $expiredRead;
 
@@ -89,7 +83,7 @@ class Capabilities
     * If it's NULL the capability isn't set and the getter
     * returns the base capability or the default value.
      *
-     * @var null|boolean
+     * @var null|bool
      */
     protected $namespaceIsPrefix;
 
@@ -109,7 +103,7 @@ class Capabilities
     * If it's NULL the capability isn't set and the getter
     * returns the base capability or the default value.
      *
-     * @var null|boolean
+     * @var null|bool
      */
     protected $staticTtl;
 
@@ -149,14 +143,14 @@ class Capabilities
     * If it's NULL the capability isn't set and the getter
     * returns the base capability or the default value.
      *
-     * @var null|boolean
+     * @var null|bool
      */
     protected $useRequestTime;
 
     /**
      * Constructor
      *
-     * @param Adapter           $adapter
+     * @param StorageInterface  $storage
      * @param stdClass          $marker
      * @param array             $capabilities
      * @param null|Capabilities $baseCapabilities
@@ -179,7 +173,7 @@ class Capabilities
     /**
      * Get the storage adapter
      *
-     * @return Adapter
+     * @return StorageInterface
      */
     public function getAdapter()
     {
@@ -210,6 +204,7 @@ class Capabilities
      *
      * @param  stdClass $marker
      * @param  array $datatypes
+     * @throws Exception\InvalidArgumentException
      * @return Capabilities Fluent interface
      */
     public function setSupportedDatatypes(stdClass $marker, array $datatypes)
@@ -244,7 +239,7 @@ class Capabilities
         // add missing datatypes as not supported
         $missingTypes = array_diff($allTypes, array_keys($datatypes));
         foreach ($missingTypes as $type) {
-            $datatypes[type] = false;
+            $datatypes[$type] = false;
         }
 
         return $this->setCapability($marker, 'supportedDatatypes', $datatypes);
@@ -265,6 +260,7 @@ class Capabilities
      *
      * @param  stdClass $marker
      * @param  string[] $metadata
+     * @throws Exception\InvalidArgumentException
      * @return Capabilities Fluent interface
      */
     public function setSupportedMetadata(stdClass $marker, array $metadata)
@@ -292,6 +288,7 @@ class Capabilities
      *
      * @param  stdClass $marker
      * @param  int $minTtl
+     * @throws Exception\InvalidArgumentException
      * @return Capabilities Fluent interface
      */
     public function setMinTtl(stdClass $marker, $minTtl)
@@ -318,6 +315,7 @@ class Capabilities
      *
      * @param  stdClass $marker
      * @param  int $maxTtl
+     * @throws Exception\InvalidArgumentException
      * @return Capabilities Fluent interface
      */
     public function setMaxTtl(stdClass $marker, $maxTtl)
@@ -333,7 +331,7 @@ class Capabilities
      * Is the time-to-live handled static (on write)
      * or dynamic (on read)
      *
-     * @return boolean
+     * @return bool
      */
     public function getStaticTtl()
     {
@@ -344,12 +342,12 @@ class Capabilities
      * Set if the time-to-live handled static (on write) or dynamic (on read)
      *
      * @param  stdClass $marker
-     * @param  boolean $flag
+     * @param  bool $flag
      * @return Capabilities Fluent interface
      */
     public function setStaticTtl(stdClass $marker, $flag)
     {
-        return $this->setCapability($marker, 'staticTtl', (bool)$flag);
+        return $this->setCapability($marker, 'staticTtl', (bool) $flag);
     }
 
     /**
@@ -367,6 +365,7 @@ class Capabilities
      *
      * @param  stdClass $marker
      * @param  float $ttlPrecision
+     * @throws Exception\InvalidArgumentException
      * @return Capabilities Fluent interface
      */
     public function setTtlPrecision(stdClass $marker, $ttlPrecision)
@@ -381,7 +380,7 @@ class Capabilities
     /**
      * Get use request time
      *
-     * @return boolean
+     * @return bool
      */
     public function getUseRequestTime()
     {
@@ -392,18 +391,18 @@ class Capabilities
      * Set use request time
      *
      * @param  stdClass $marker
-     * @param  boolean $flag
+     * @param  bool $flag
      * @return Capabilities Fluent interface
      */
     public function setUseRequestTime(stdClass $marker, $flag)
     {
-        return $this->setCapability($marker, 'useRequestTime', (bool)$flag);
+        return $this->setCapability($marker, 'useRequestTime', (bool) $flag);
     }
 
     /**
      * Get if expired items are readable
      *
-     * @return boolean
+     * @return bool
      */
     public function getExpiredRead()
     {
@@ -414,12 +413,12 @@ class Capabilities
      * Set if expired items are readable
      *
      * @param  stdClass $marker
-     * @param  boolean $flag
+     * @param  bool $flag
      * @return Capabilities Fluent interface
      */
     public function setExpiredRead(stdClass $marker, $flag)
     {
-        return $this->setCapability($marker, 'expiredRead', (bool)$flag);
+        return $this->setCapability($marker, 'expiredRead', (bool) $flag);
     }
 
     /**
@@ -437,6 +436,7 @@ class Capabilities
      *
      * @param  stdClass $marker
      * @param  int $maxKeyLength
+     * @throws Exception\InvalidArgumentException
      * @return Capabilities Fluent interface
      */
     public function setMaxKeyLength(stdClass $marker, $maxKeyLength)
@@ -451,7 +451,7 @@ class Capabilities
     /**
      * Get if namespace support is implemented as prefix
      *
-     * @return boolean
+     * @return bool
      */
     public function getNamespaceIsPrefix()
     {
@@ -462,12 +462,12 @@ class Capabilities
      * Set if namespace support is implemented as prefix
      *
      * @param  stdClass $marker
-     * @param  boolean $flag
+     * @param  bool $flag
      * @return Capabilities Fluent interface
      */
     public function setNamespaceIsPrefix(stdClass $marker, $flag)
     {
-        return $this->setCapability($marker, 'namespaceIsPrefix', (bool)$flag);
+        return $this->setCapability($marker, 'namespaceIsPrefix', (bool) $flag);
     }
 
     /**
@@ -514,7 +514,7 @@ class Capabilities
      * Change a capability
      *
      * @param  stdClass $marker
-     * @param  string $name
+     * @param  string $property
      * @param  mixed $value
      * @return Capabilities Fluent interface
      * @throws Exception\InvalidArgumentException

@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Http
  */
 
 namespace Zend\Http\Header;
@@ -15,8 +14,6 @@ use Zend\Http\Header\Accept\FieldValuePart;
 /**
  * Accept Header
  *
- * @category   Zend
- * @package    Zend\Http\Header
  * @see        http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1
  */
 class Accept extends AbstractAccept
@@ -48,7 +45,7 @@ class Accept extends AbstractAccept
      *
      * @param  string $type
      * @param  int|float $priority
-     * @param  int $level
+     * @param  array $params
      * @return Accept
      */
     public function addMediaType($type, $priority = 1, array $params = array())
@@ -70,7 +67,7 @@ class Accept extends AbstractAccept
     /**
      * Parse the keys contained in the header line
      *
-     * @param string mediaType
+     * @param string $fieldValuePart
      * @return \Zend\Http\Header\Accept\FieldValuePart\CharsetFieldValuePart
      * @see \Zend\Http\Header\AbstractAccept::parseFieldValuePart()
      */

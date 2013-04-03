@@ -3,13 +3,13 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Mvc
  */
 
 namespace Zend\Mvc\Service;
 
+use Zend\Console\Console;
 use Zend\Mvc\Exception;
 use Zend\Mvc\Router\RouteMatch;
 use Zend\ServiceManager\ConfigInterface;
@@ -17,11 +17,6 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Helper as ViewHelper;
 use Zend\View\Helper\HelperInterface as ViewHelperInterface;
 
-/**
- * @category   Zend
- * @package    Zend_Mvc
- * @subpackage Service
- */
 class ViewHelperManagerFactory extends AbstractPluginManagerFactory
 {
     const PLUGIN_MANAGER_CLASS = 'Zend\View\HelperPluginManager';
@@ -65,28 +60,28 @@ class ViewHelperManagerFactory extends AbstractPluginManagerFactory
         }
 
         // Configure URL view helper with router
-        $plugins->setFactory('url', function($sm) use($serviceLocator) {
+        $plugins->setFactory('url', function ($sm) use($serviceLocator) {
             $helper = new ViewHelper\Url;
-            $helper->setRouter($serviceLocator->get('Router'));
+            $router = Console::isConsole() ? 'HttpRouter' : 'Router';
+            $helper->setRouter($serviceLocator->get($router));
 
             $match = $serviceLocator->get('application')
-                        ->getMvcEvent()
-                        ->getRouteMatch();
+                ->getMvcEvent()
+                ->getRouteMatch()
+            ;
 
             if ($match instanceof RouteMatch) {
-
                 $helper->setRouteMatch($match);
             }
 
             return $helper;
         });
 
-        $plugins->setFactory('basepath', function($sm) use($serviceLocator) {
+        $plugins->setFactory('basepath', function ($sm) use($serviceLocator) {
             $config = $serviceLocator->get('Config');
-            $config = $config['view_manager'];
             $basePathHelper = new ViewHelper\BasePath;
-            if (isset($config['base_path'])) {
-                $basePath = $config['base_path'];
+            if (isset($config['view_manager']) && isset($config['view_manager']['base_path'])) {
+                $basePath = $config['view_manager']['base_path'];
             } else {
                 $basePath = $serviceLocator->get('Request')->getBasePath();
             }
@@ -100,7 +95,7 @@ class ViewHelperManagerFactory extends AbstractPluginManagerFactory
          * Other view helpers depend on this to decide which spec to generate their tags
          * based on. This is why it must be set early instead of later in the layout phtml.
          */
-        $plugins->setFactory('doctype', function($sm) use($serviceLocator) {
+        $plugins->setFactory('doctype', function ($sm) use($serviceLocator) {
             $config = $serviceLocator->get('Config');
             $config = $config['view_manager'];
             $doctypeHelper = new ViewHelper\Doctype;

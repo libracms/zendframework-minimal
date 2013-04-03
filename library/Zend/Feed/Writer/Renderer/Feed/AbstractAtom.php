@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Feed
  */
 
 namespace Zend\Feed\Writer\Renderer\Feed;
@@ -18,17 +17,15 @@ use Zend\Feed\Writer\Renderer;
 use Zend\Version\Version;
 
 /**
-* @category Zend
-* @package Zend_Feed_Writer
 */
 class AbstractAtom extends Renderer\AbstractRenderer
 {
     /**
      * Constructor
      *
-     * @param  Zend_Feed_Writer_Feed $container
+     * @param  Writer\AbstractFeed $container
      */
-    public function __construct ($container)
+    public function __construct($container)
     {
         parent::__construct($container);
     }

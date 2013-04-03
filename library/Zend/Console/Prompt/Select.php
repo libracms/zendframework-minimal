@@ -3,20 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Console
  */
 
 namespace Zend\Console\Prompt;
 
 use Zend\Console\Exception;
 
-/**
- * @category   Zend
- * @package    Zend_Console
- * @subpackage Prompt
- */
 class Select extends Char
 {
     /**
@@ -41,6 +35,7 @@ class Select extends Char
      * @param array     $options        Allowed options
      * @param bool      $allowEmpty     Allow empty (no) selection?
      * @param bool      $echo           True to display selected option?
+     * @throws Exception\BadMethodCallException if no options available
      */
     public function __construct(
         $promptText = 'Please select one option',
@@ -121,6 +116,7 @@ class Select extends Char
      * Set allowed options
      *
      * @param array|\Traversable $options
+     * @throws Exception\BadMethodCallException
      */
     public function setOptions($options)
     {

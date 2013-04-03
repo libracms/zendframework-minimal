@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Escaper
  */
 
 namespace Zend\Escaper;
@@ -14,8 +13,6 @@ use Zend\Escaper\Exception;
 
 /**
  * Context specific methods for use in secure output escaping
- *
- * @package    Zend_Escaper
  */
 class Escaper
 {
@@ -98,6 +95,7 @@ class Escaper
      * is set for htmlspecialchars() calls.
      *
      * @param string $encoding
+     * @throws Exception\InvalidArgumentException
      */
     public function __construct($encoding = null)
     {
@@ -268,9 +266,8 @@ class Escaper
          */
         if ($ord > 255) {
             return sprintf('&#x%04X;', $ord);
-        } else {
-            return sprintf('&#x%02X;', $ord);
         }
+        return sprintf('&#x%02X;', $ord);
     }
 
     /**
@@ -285,10 +282,9 @@ class Escaper
         $chr = $matches[0];
         if (strlen($chr) == 1) {
             return sprintf('\\x%02X', ord($chr));
-        } else {
-            $chr = $this->convertEncoding($chr, 'UTF-16BE', 'UTF-8');
-            return sprintf('\\u%04s', strtoupper(bin2hex($chr)));
         }
+        $chr = $this->convertEncoding($chr, 'UTF-16BE', 'UTF-8');
+        return sprintf('\\u%04s', strtoupper(bin2hex($chr)));
     }
 
     /**
@@ -315,6 +311,7 @@ class Escaper
      * class' constructor.
      *
      * @param string $string
+     * @throws Exception\RuntimeException
      * @return string
      */
     protected function toUtf8($string)
@@ -365,6 +362,9 @@ class Escaper
      * and exception where neither is available.
      *
      * @param string $string
+     * @param string $to
+     * @param array|string $from
+     * @throws Exception\RuntimeException
      * @return string
      */
     protected function convertEncoding($string, $to, $from)
@@ -384,8 +384,7 @@ class Escaper
 
         if ($result === false) {
             return ''; // return non-fatal blank string on encoding errors from users
-        } else {
-            return $result;
         }
+        return $result;
     }
 }

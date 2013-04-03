@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Barcode
  */
 
 namespace Zend\Barcode\Renderer;
@@ -14,10 +13,6 @@ use Zend\Barcode\Object\ObjectInterface;
 
 /**
  * Class for rendering the barcode
- *
- * @category   Zend
- * @package    Zend_Barcode
- * @subpackage Renderer
  */
 interface RendererInterface
 {
@@ -30,7 +25,7 @@ interface RendererInterface
     /**
      * Set renderer state from options array
      * @param  array $options
-     * @return Renderer
+     * @return RendererInterface
      */
     public function setOptions($options);
 
@@ -38,7 +33,7 @@ interface RendererInterface
      * Set renderer namespace for autoloading
      *
      * @param string $namespace
-     * @return Renderer
+     * @return RendererInterface
      */
     public function setRendererNamespace($namespace);
 
@@ -58,7 +53,7 @@ interface RendererInterface
     /**
      * Manually adjust top position
      * @param integer $value
-     * @return Renderer
+     * @return RendererInterface
      */
     public function setTopOffset($value);
 
@@ -71,7 +66,7 @@ interface RendererInterface
     /**
      * Manually adjust left position
      * @param integer $value
-     * @return Renderer
+     * @return RendererInterface
      */
     public function setLeftOffset($value);
 
@@ -83,14 +78,14 @@ interface RendererInterface
 
     /**
      * Activate/Deactivate the automatic rendering of exception
-     * @param boolean $value
+     * @param  bool $value
      */
     public function setAutomaticRenderError($value);
 
     /**
      * Horizontal position of the barcode in the rendering resource
      * @param string $value
-     * @return Renderer
+     * @return RendererInterface
      */
     public function setHorizontalPosition($value);
 
@@ -103,7 +98,7 @@ interface RendererInterface
     /**
      * Vertical position of the barcode in the rendering resource
      * @param string $value
-     * @return Renderer
+     * @return RendererInterface
      */
     public function setVerticalPosition($value);
 
@@ -116,7 +111,7 @@ interface RendererInterface
     /**
      * Set the size of a module
      * @param float $value
-     * @return Renderer
+     * @return RendererInterface
      */
     public function setModuleSize($value);
 
@@ -128,14 +123,14 @@ interface RendererInterface
 
     /**
      * Retrieve the automatic rendering of exception
-     * @return boolean
+     * @return bool
      */
     public function getAutomaticRenderError();
 
     /**
      * Set the barcode object
      * @param  ObjectInterface $barcode
-     * @return Renderer
+     * @return RendererInterface
      */
     public function setBarcode(ObjectInterface $barcode);
 
@@ -147,7 +142,7 @@ interface RendererInterface
 
     /**
      * Checking of parameters after all settings
-     * @return boolean
+     * @return bool
      */
     public function checkParams();
 

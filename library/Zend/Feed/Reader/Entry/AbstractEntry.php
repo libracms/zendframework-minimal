@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Feed
  */
 
 namespace Zend\Feed\Reader\Entry;
@@ -16,10 +15,6 @@ use DOMXPath;
 use Zend\Feed\Reader;
 use Zend\Feed\Reader\Exception;
 
-/**
-* @category Zend
-* @package Zend_Feed_Reader
-*/
 abstract class AbstractEntry
 {
     /**
@@ -39,7 +34,7 @@ abstract class AbstractEntry
     /**
      * Entry instance
      *
-     * @var Zend_Feed_Entry_Interface
+     * @var DOMElement
      */
     protected $entry = null;
 
@@ -160,7 +155,7 @@ abstract class AbstractEntry
      * Set the XPath query
      *
      * @param  DOMXPath $xpath
-     * @return Zend_Feed_Reader_Entry_EntryAbstract
+     * @return AbstractEntry
      */
     public function setXpath(DOMXPath $xpath)
     {
@@ -182,7 +177,7 @@ abstract class AbstractEntry
      * Return an Extension object with the matching name (postfixed with _Entry)
      *
      * @param string $name
-     * @return Zend_Feed_Reader_Extension_EntryAbstract
+     * @return Reader\Extension\AbstractEntry
      */
     public function getExtension($name)
     {

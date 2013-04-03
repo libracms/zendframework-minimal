@@ -3,22 +3,17 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Db
  */
 
 namespace Zend\Db\Adapter\Driver\Pgsql;
 
 use Zend\Db\Adapter\Driver\DriverInterface;
 use Zend\Db\Adapter\Exception;
+use Zend\Db\Adapter\Profiler;
 
-/**
- * @category   Zend
- * @package    Zend_Db
- * @subpackage Adapter
- */
-class Pgsql implements DriverInterface
+class Pgsql implements DriverInterface, Profiler\ProfilerAwareInterface
 {
     /**
      * @var Connection
@@ -36,6 +31,11 @@ class Pgsql implements DriverInterface
     protected $resultPrototype = null;
 
     /**
+     * @var null|Profiler\ProfilerInterface
+     */
+    protected $profiler = null;
+
+    /**
      * @var array
      */
     protected $options = array(
@@ -43,6 +43,8 @@ class Pgsql implements DriverInterface
     );
 
     /**
+     * Constructor
+     *
      * @param array|Connection|resource $connection
      * @param null|Statement $statementPrototype
      * @param null|Result $resultPrototype
@@ -59,7 +61,29 @@ class Pgsql implements DriverInterface
         $this->registerResultPrototype(($resultPrototype) ?: new Result());
     }
 
+    public function setProfiler(Profiler\ProfilerInterface $profiler)
+    {
+        $this->profiler = $profiler;
+        if ($this->connection instanceof Profiler\ProfilerAwareInterface) {
+            $this->connection->setProfiler($profiler);
+        }
+        if ($this->statementPrototype instanceof Profiler\ProfilerAwareInterface) {
+            $this->statementPrototype->setProfiler($profiler);
+        }
+        return $this;
+    }
+
     /**
+     * @return null|Profiler\ProfilerInterface
+     */
+    public function getProfiler()
+    {
+        return $this->profiler;
+    }
+
+    /**
+     * Register connection
+     *
      * @param Connection $connection
      * @return Pgsql
      */
@@ -71,6 +95,8 @@ class Pgsql implements DriverInterface
     }
 
     /**
+     * Register statement prototype
+     *
      * @param Statement $statement
      * @return Pgsql
      */
@@ -82,6 +108,8 @@ class Pgsql implements DriverInterface
     }
 
     /**
+     * Register result prototype
+     *
      * @param Result $result
      * @return Pgsql
      */
@@ -92,6 +120,8 @@ class Pgsql implements DriverInterface
     }
 
     /**
+     * Get database platform name
+     *
      * @param string $nameFormat
      * @return string
      */
@@ -99,22 +129,27 @@ class Pgsql implements DriverInterface
     {
         if ($nameFormat == self::NAME_FORMAT_CAMELCASE) {
             return 'Postgresql';
-        } else {
-            return 'PostgreSQL';
         }
+
+        return 'PostgreSQL';
     }
 
     /**
+     * Check environment
+     *
+     * @throws Exception\RuntimeException
      * @return bool
      */
     public function checkEnvironment()
     {
-        if (!extension_loaded('mysqli')) {
-            throw new Exception\RuntimeException('The Mysqli extension is required for this adapter but the extension is not loaded');
+        if (!extension_loaded('pgsql')) {
+            throw new Exception\RuntimeException('The PostgreSQL (pgsql) extension is required for this adapter but the extension is not loaded');
         }
     }
 
     /**
+     * Get connection
+     *
      * @return Connection
      */
     public function getConnection()
@@ -123,6 +158,8 @@ class Pgsql implements DriverInterface
     }
 
     /**
+     * Create statement
+     *
      * @param string|null $sqlOrResource
      * @return Statement
      */
@@ -149,6 +186,9 @@ class Pgsql implements DriverInterface
     }
 
     /**
+     * Create result
+     *
+     * @param resource $resource
      * @return Result
      */
     public function createResult($resource)
@@ -159,6 +199,8 @@ class Pgsql implements DriverInterface
     }
 
     /**
+     * Get prepare Type
+     *
      * @return array
      */
     public function getPrepareType()
@@ -167,6 +209,8 @@ class Pgsql implements DriverInterface
     }
 
     /**
+     * Format parameter name
+     *
      * @param string $name
      * @param mixed  $type
      * @return string
@@ -177,6 +221,8 @@ class Pgsql implements DriverInterface
     }
 
     /**
+     * Get last generated value
+     *
      * @return mixed
      */
     public function getLastGeneratedValue()

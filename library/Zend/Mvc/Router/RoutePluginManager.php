@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Mvc
  */
 
 namespace Zend\Mvc\Router;
@@ -19,10 +18,6 @@ use Zend\ServiceManager\AbstractPluginManager;
  * createFromInvokable() to call the route's factory method in order to get an
  * instance. The manager is marked to not share by default, in order to allow
  * multiple route instances of the same type.
- *
- * @category   Zend
- * @package    Zend_Mvc
- * @subpackage Router
  */
 class RoutePluginManager extends AbstractPluginManager
 {
@@ -64,7 +59,7 @@ class RoutePluginManager extends AbstractPluginManager
      * @param  string $canonicalName
      * @param  string $requestedName
      * @return null|\stdClass
-     * @throws Exception\RuntimeException If resolved class does not exist, or does not implement RouterInterface
+     * @throws Exception\RuntimeException If resolved class does not exist, or does not implement RouteInterface
      */
     protected function createFromInvokable($canonicalName, $requestedName)
     {
@@ -75,17 +70,17 @@ class RoutePluginManager extends AbstractPluginManager
                 __METHOD__,
                 $canonicalName,
                 ($requestedName ? '(alias: ' . $requestedName . ')' : ''),
-                $canonicalName
+                $invokable
             ));
         }
 
-        if (!self::isSubclassOf($invokable, __NAMESPACE__ . '\RouteInterface')) {
+        if (!static::isSubclassOf($invokable, __NAMESPACE__ . '\RouteInterface')) {
             throw new Exception\RuntimeException(sprintf(
                 '%s: failed retrieving "%s%s" via invokable class "%s"; class does not implement %s\RouteInterface',
                 __METHOD__,
                 $canonicalName,
                 ($requestedName ? '(alias: ' . $requestedName . ')' : ''),
-                $canonicalName,
+                $invokable,
                 __NAMESPACE__
             ));
         }

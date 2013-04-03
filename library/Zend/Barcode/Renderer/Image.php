@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Barcode
  */
 
 namespace Zend\Barcode\Renderer;
@@ -15,9 +14,6 @@ use Zend\Stdlib\ErrorHandler;
 
 /**
  * Class for rendering the barcode as image
- *
- * @category   Zend
- * @package    Zend_Barcode
  */
 class Image extends AbstractRenderer
 {
@@ -67,7 +63,9 @@ class Image extends AbstractRenderer
 
     /**
      * Constructor
+     *
      * @param array|\Traversable $options
+     * @throws RendererCreationException
      */
     public function __construct($options = null)
     {
@@ -80,9 +78,10 @@ class Image extends AbstractRenderer
 
     /**
      * Set height of the result image
+     *
      * @param null|integer $value
+     * @throws Exception\OutOfRangeException
      * @return Image
-     * @throw  Exception
      */
     public function setHeight($value)
     {
@@ -109,7 +108,8 @@ class Image extends AbstractRenderer
      * Set barcode width
      *
      * @param mixed $value
-     * @return void
+     * @throws Exception\OutOfRangeException
+     * @return self
      */
     public function setWidth($value)
     {
@@ -135,9 +135,9 @@ class Image extends AbstractRenderer
     /**
      * Set an image resource to draw the barcode inside
      *
-     * @param resource $value
+     * @param resource $image
      * @return Image
-     * @throw  Exception
+     * @throws Exception\InvalidArgumentException
      */
     public function setResource($image)
     {
@@ -154,8 +154,8 @@ class Image extends AbstractRenderer
      * Set the image type to produce (png, jpeg, gif)
      *
      * @param string $value
+     * @throws Exception\InvalidArgumentException
      * @return Image
-     * @throw  Exception
      */
     public function setImageType($value)
     {
@@ -260,6 +260,7 @@ class Image extends AbstractRenderer
     /**
      * Check barcode dimensions
      *
+     * @throws Exception\RuntimeException
      * @return void
      */
     protected function checkDimensions()
@@ -324,7 +325,7 @@ class Image extends AbstractRenderer
      *
      * @param array $points
      * @param integer $color
-     * @param boolean $filled
+     * @param  bool $filled
      */
     protected function drawPolygon($points, $color, $filled = true)
     {
@@ -359,6 +360,7 @@ class Image extends AbstractRenderer
      * @param integer $color
      * @param string $alignment
      * @param float $orientation
+     * @throws Exception\RuntimeException
      */
     protected function drawText($text, $size, $position, $font, $color, $alignment = 'center', $orientation = 0)
     {

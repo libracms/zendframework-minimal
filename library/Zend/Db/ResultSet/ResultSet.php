@@ -3,20 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Db
  */
 
 namespace Zend\Db\ResultSet;
 
 use ArrayObject;
 
-/**
- * @category   Zend
- * @package    Zend_Db
- * @subpackage ResultSet
- */
 class ResultSet extends AbstractResultSet
 {
     const TYPE_ARRAYOBJECT = 'arrayobject';
@@ -62,6 +56,7 @@ class ResultSet extends AbstractResultSet
      * Set the row object prototype
      *
      * @param  ArrayObject $arrayObjectPrototype
+     * @throws Exception\InvalidArgumentException
      * @return ResultSet
      */
     public function setArrayObjectPrototype($arrayObjectPrototype)
@@ -110,9 +105,8 @@ class ResultSet extends AbstractResultSet
                 $ao->exchangeArray($data);
             }
             return $ao;
-        } else {
-            return $data;
         }
-    }
 
+        return $data;
+    }
 }

@@ -8,11 +8,12 @@
     ],
     "autoload": {
         "psr-0": {
-            "Zend\\Paginator": ""
+            "Zend\\Paginator\\": ""
         }
     },
     "target-dir": "Zend/Paginator",
     "require": {
-        "php": ">=5.3.3"
+        "php": ">=5.3.3",
+        "zendframework/zend-stdlib": "self.version"
     }
 }

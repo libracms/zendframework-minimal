@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_ModuleManager
  */
 
 namespace Zend\ModuleManager\Listener;
@@ -15,13 +14,10 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\ModuleManager\Feature\LocatorRegisteredInterface;
 use Zend\ModuleManager\ModuleEvent;
+use Zend\Mvc\MvcEvent;
 
 /**
  * Locator registration listener
- *
- * @category   Zend
- * @package    Zend_ModuleManager
- * @subpackage Listener
  */
 class LocatorRegistrationListener extends AbstractListener implements
     ListenerAggregateInterface
@@ -54,20 +50,24 @@ class LocatorRegistrationListener extends AbstractListener implements
     }
 
     /**
-     * loadModulesPost
+     * loadModules
      *
      * Once all the modules are loaded, loop
      *
      * @param  Event $e
      * @return void
      */
-    public function onLoadModulesPost(Event $e)
+    public function onLoadModules(Event $e)
     {
         $moduleManager = $e->getTarget();
         $events        = $moduleManager->getEventManager()->getSharedManager();
 
+        if (!$events) {
+            return;
+        }
+
         // Shared instance for module manager
-        $events->attach('Zend\Mvc\Application', 'bootstrap', function ($e) use ($moduleManager) {
+        $events->attach('Zend\Mvc\Application', MvcEvent::EVENT_BOOTSTRAP, function ($e) use ($moduleManager) {
             $moduleClassName = get_class($moduleManager);
             $application     = $e->getApplication();
             $services        = $application->getServiceManager();
@@ -81,7 +81,7 @@ class LocatorRegistrationListener extends AbstractListener implements
         }
 
         // Attach to the bootstrap event if there are modules we need to process
-        $events->attach('Zend\Mvc\Application', 'bootstrap', array($this, 'onBootstrap'), 1000);
+        $events->attach('Zend\Mvc\Application', MvcEvent::EVENT_BOOTSTRAP, array($this, 'onBootstrap'), 1000);
     }
 
     /**
@@ -117,7 +117,7 @@ class LocatorRegistrationListener extends AbstractListener implements
     public function attach(EventManagerInterface $events)
     {
         $this->listeners[] = $events->attach(ModuleEvent::EVENT_LOAD_MODULE, array($this, 'onLoadModule'));
-        $this->listeners[] = $events->attach(ModuleEvent::EVENT_LOAD_MODULES, array($this, 'onLoadModulesPost'), -1000);
+        $this->listeners[] = $events->attach(ModuleEvent::EVENT_LOAD_MODULES, array($this, 'onLoadModules'), -1000);
         return $this;
     }
 

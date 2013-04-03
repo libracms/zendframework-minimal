@@ -8,11 +8,12 @@
     ],
     "autoload": {
         "psr-0": {
-            "Zend\\Dom": ""
+            "Zend\\Dom\\": ""
         }
     },
     "target-dir": "Zend/Dom",
     "require": {
-        "php": ">=5.3.3"
+        "php": ">=5.3.3",
+        "zendframework/zend-stdlib": "self.version"
     }
 }

@@ -12,25 +12,21 @@
  * obtain it through the world-wide-web, please send an email
  * to license@zend.com so we can send you a copy immediately.
  *
- * @category   Zend
- * @package    Zend_Form
- * @subpackage Element
- * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 
 namespace Zend\Form\Element;
 
+use Zend\Form\FormInterface;
 use Zend\Form\Element;
+use Zend\Form\ElementPrepareAwareInterface;
 
 /**
- * @category   Zend
- * @package    Zend_Form
- * @subpackage Element
- * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-class Password extends Element
+class Password extends Element implements ElementPrepareAwareInterface
 {
     /**
      * Seed attributes
@@ -40,4 +36,15 @@ class Password extends Element
     protected $attributes = array(
         'type' => 'password',
     );
+
+    /**
+     * Remove the password before rendering if the form fails in order to avoid any security issue
+     *
+     * @param  FormInterface $form
+     * @return mixed
+     */
+    public function prepareElement(FormInterface $form)
+    {
+        $this->setValue('');
+    }
 }

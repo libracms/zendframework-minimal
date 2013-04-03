@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Filter
  */
 
 namespace Zend\Filter\Compress;
@@ -14,9 +13,6 @@ use Zend\Filter\Exception;
 
 /**
  * Compression adapter for Rar
- *
- * @category   Zend
- * @package    Zend_Filter
  */
 class Rar extends AbstractCompressionAlgorithm
 {
@@ -42,6 +38,7 @@ class Rar extends AbstractCompressionAlgorithm
      * Class constructor
      *
      * @param array $options (Optional) Options to set
+     * @throws Exception\ExtensionNotLoadedException if rar extension not loaded
      */
     public function __construct($options = null)
     {
@@ -181,14 +178,12 @@ class Rar extends AbstractCompressionAlgorithm
      * Decompresses the given content
      *
      * @param  string $content
-     * @return boolean
+     * @return bool
      * @throws Exception\RuntimeException if archive not found, cannot be opened,
      *                                    or error during decompression
      */
     public function decompress($content)
     {
-        $archive = $this->getArchive();
-
         if (!file_exists($content)) {
             throw new Exception\RuntimeException('RAR Archive not found');
         }

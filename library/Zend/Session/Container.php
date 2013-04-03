@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Session
  */
 
 namespace Zend\Session;
@@ -22,9 +21,6 @@ use Zend\Session\Storage\StorageInterface as Storage;
  * may have their own expiries, or even expiries per key in the container.
  * Additionally, expiries may be absolute TTLs or measured in "hops", which
  * are based on how many times the key or container were accessed.
- *
- * @category   Zend
- * @package    Zend_Session
  */
 class Container extends ArrayObject
 {
@@ -88,7 +84,7 @@ class Container extends ArrayObject
      */
     public static function setDefaultManager(Manager $manager = null)
     {
-        self::$defaultManager = $manager;
+        static::$defaultManager = $manager;
     }
 
     /**
@@ -101,16 +97,16 @@ class Container extends ArrayObject
      */
     public static function getDefaultManager()
     {
-        if (null === self::$defaultManager) {
-            $manager = new self::$managerDefaultClass();
+        if (null === static::$defaultManager) {
+            $manager = new static::$managerDefaultClass();
             if (!$manager instanceof Manager) {
                 throw new Exception\InvalidArgumentException(
                     'Invalid default manager type provided; must implement ManagerInterface'
                 );
             }
-            self::$defaultManager = $manager;
+            static::$defaultManager = $manager;
         }
-        return self::$defaultManager;
+        return static::$defaultManager;
     }
 
     /**
@@ -133,10 +129,10 @@ class Container extends ArrayObject
     protected function setManager(Manager $manager = null)
     {
         if (null === $manager) {
-            $manager = self::getDefaultManager();
+            $manager = static::getDefaultManager();
             if (!$manager instanceof Manager) {
                 throw new Exception\InvalidArgumentException(
-                    'Manager provided is invalid; must implement ManagerInterface interface'
+                    'Manager provided is invalid; must implement ManagerInterface'
                 );
             }
         }
@@ -439,6 +435,23 @@ class Container extends ArrayObject
     }
 
     /**
+     * Exchange the current array with another array or object.
+     *
+     * @param array|object $input
+     * @return array Returns the old array
+     * @see ArrayObject::exchangeArray()
+     */
+    public function exchangeArray($input)
+    {
+        $storage = $this->verifyNamespace();
+        $name    = $this->getName();
+
+        $old = $storage[$name];
+        $storage[$name] = $input;
+        return (array) $old;
+    }
+
+    /**
      * Iterate over session container
      *
      * @return Iterator
@@ -507,6 +520,7 @@ class Container extends ArrayObject
      *
      * @param  int $hops
      * @param  null|string|array $vars
+     * @throws Exception\InvalidArgumentException
      * @return Container
      */
     public function setExpirationHops($hops, $vars = null)

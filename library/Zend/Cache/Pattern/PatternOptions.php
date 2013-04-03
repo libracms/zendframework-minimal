@@ -3,23 +3,18 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Cache
  */
 
 namespace Zend\Cache\Pattern;
 
+use Traversable;
 use Zend\Cache\Exception;
 use Zend\Cache\StorageFactory;
 use Zend\Cache\Storage\StorageInterface as Storage;
 use Zend\Stdlib\AbstractOptions;
 
-/**
- * @category   Zend
- * @package    Zend_Cache
- * @subpackage Pattern
- */
 class PatternOptions extends AbstractOptions
 {
     /**
@@ -151,7 +146,7 @@ class PatternOptions extends AbstractOptions
      * Constructor
      *
      * @param  array|Traversable|null $options
-     * @return AbstractOptions
+     * @return PatternOptions
      * @throws Exception\InvalidArgumentException
      */
     public function __construct($options = null)
@@ -234,6 +229,7 @@ class PatternOptions extends AbstractOptions
      * - ClassCache
      *
      * @param  string $class
+     * @throws Exception\InvalidArgumentException
      * @return PatternOptions
      */
     public function setClass($class)
@@ -318,6 +314,7 @@ class PatternOptions extends AbstractOptions
      * Set directory permission
      *
      * @param  false|int $dirPermission
+     * @throws Exception\InvalidArgumentException
      * @return PatternOptions
      */
     public function setDirPermission($dirPermission)
@@ -358,6 +355,7 @@ class PatternOptions extends AbstractOptions
      * - CaptureCache
      *
      * @param  false|int $umask
+     * @throws Exception\InvalidArgumentException
      * @return PatternOptions
      */
     public function setUmask($umask)
@@ -429,6 +427,7 @@ class PatternOptions extends AbstractOptions
      * Set file permission
      *
      * @param  false|int $filePermission
+     * @throws Exception\InvalidArgumentException
      * @return PatternOptions
      */
     public function setFilePermission($filePermission)
@@ -491,7 +490,8 @@ class PatternOptions extends AbstractOptions
     /**
      * Set object to cache
      *
-     * @param  mixed $value
+     * @param  mixed $object
+     * @throws Exception\InvalidArgumentException
      * @return $this
      */
     public function setObject($object)
@@ -574,7 +574,7 @@ class PatternOptions extends AbstractOptions
      * Used by:
      * - ObjectCache
      *
-     * @param  mixed $value
+     * @param  mixed $objectKey
      * @return $this
      */
     public function setObjectKey($objectKey)
@@ -633,6 +633,7 @@ class PatternOptions extends AbstractOptions
      * - CaptureCache
      *
      * @param  string $publicDir
+     * @throws Exception\InvalidArgumentException
      * @return PatternOptions
      */
     public function setPublicDir($publicDir)
@@ -742,7 +743,8 @@ class PatternOptions extends AbstractOptions
      * Create a storage object from a given specification
      *
      * @param  array|string|Storage $storage
-     * @return StorageAdapter
+     * @throws Exception\InvalidArgumentException
+     * @return Storage
      */
     protected function storageFactory($storage)
     {

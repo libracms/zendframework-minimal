@@ -3,13 +3,13 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_View
  */
 
 namespace Zend\View\Helper;
 
+use stdClass;
 use Zend\View;
 use Zend\View\Exception;
 
@@ -17,8 +17,6 @@ use Zend\View\Exception;
  * Zend_Layout_View_Helper_HeadMeta
  *
  * @see        http://www.w3.org/TR/xhtml1/dtds.html
- * @package    Zend_View
- * @subpackage Helper
  */
 class HeadMeta extends Placeholder\Container\AbstractStandalone
 {
@@ -80,7 +78,7 @@ class HeadMeta extends Placeholder\Container\AbstractStandalone
     /**
      * Normalize type attribute of meta
      *
-     * @param $type type in CamelCase
+     * @param string $type type in CamelCase
      * @return string
      * @throws Exception\DomainException
      */
@@ -171,7 +169,7 @@ class HeadMeta extends Placeholder\Container\AbstractStandalone
      */
     public function setCharset($charset)
     {
-        $item = new \stdClass;
+        $item = new stdClass;
         $item->type = 'charset';
         $item->charset = $charset;
         $item->content = null;
@@ -184,11 +182,11 @@ class HeadMeta extends Placeholder\Container\AbstractStandalone
      * Determine if item is valid
      *
      * @param  mixed $item
-     * @return boolean
+     * @return bool
      */
     protected function isValid($item)
     {
-        if ((!$item instanceof \stdClass)
+        if ((!$item instanceof stdClass)
             || !isset($item->type)
             || !isset($item->modifiers))
         {
@@ -307,14 +305,11 @@ class HeadMeta extends Placeholder\Container\AbstractStandalone
     /**
      * Build meta HTML string
      *
-     * @param  string $type
-     * @param  string $typeValue
-     * @param  string $content
-     * @param  array $modifiers
-     * @return string
+     * @param  stdClass $item
      * @throws Exception\InvalidArgumentException
+     * @return string
      */
-    public function itemToString(\stdClass $item)
+    public function itemToString(stdClass $item)
     {
         if (!in_array($item->type, $this->typeKeys)) {
             throw new Exception\InvalidArgumentException(sprintf(
@@ -339,6 +334,12 @@ class HeadMeta extends Placeholder\Container\AbstractStandalone
             $modifiersString .= $key . '="' . $this->escape($value) . '" ';
         }
 
+        $modifiersString = rtrim($modifiersString);
+
+        if ('' != $modifiersString) {
+            $modifiersString = ' ' . $modifiersString;
+        }
+
         if (method_exists($this->view, 'plugin')) {
             if ($this->view->plugin('doctype')->isHtml5()
                 && $type == 'charset'
@@ -347,12 +348,12 @@ class HeadMeta extends Placeholder\Container\AbstractStandalone
                     ? '<meta %s="%s"/>'
                     : '<meta %s="%s">';
             } elseif ($this->view->plugin('doctype')->isXhtml()) {
-                $tpl = '<meta %s="%s" content="%s" %s/>';
+                $tpl = '<meta %s="%s" content="%s"%s />';
             } else {
-                $tpl = '<meta %s="%s" content="%s" %s>';
+                $tpl = '<meta %s="%s" content="%s"%s>';
             }
         } else {
-            $tpl = '<meta %s="%s" content="%s" %s/>';
+            $tpl = '<meta %s="%s" content="%s"%s />';
         }
 
         $meta = sprintf(
@@ -409,7 +410,7 @@ class HeadMeta extends Placeholder\Container\AbstractStandalone
      */
     public function createData($type, $typeValue, $content, array $modifiers)
     {
-        $data            = new \stdClass;
+        $data            = new stdClass;
         $data->type      = $type;
         $data->$type     = $typeValue;
         $data->content   = $content;

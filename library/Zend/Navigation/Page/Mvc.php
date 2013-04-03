@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Navigation
  */
 
 namespace Zend\Navigation\Page;
@@ -13,15 +12,11 @@ namespace Zend\Navigation\Page;
 use Zend\Mvc\Router\RouteMatch;
 use Zend\Mvc\Router\RouteStackInterface;
 use Zend\Navigation\Exception;
-use Zend\View\Helper\Url as UrlHelper;
+use Zend\Mvc\ModuleRouteListener;
 
 /**
  * Represents a page that is defined using controller, action, route
  * name and route params to assemble the href
- *
- * @category   Zend
- * @package    Zend_Navigation
- * @subpackage Page
  */
 class Mvc extends AbstractPage
 {
@@ -110,6 +105,10 @@ class Mvc extends AbstractPage
             if ($this->routeMatch instanceof RouteMatch) {
                 $reqParams  = $this->routeMatch->getParams();
 
+                if (isset($reqParams[ModuleRouteListener::ORIGINAL_CONTROLLER])) {
+                    $reqParams['controller'] = $reqParams[ModuleRouteListener::ORIGINAL_CONTROLLER];
+                }
+
                 $myParams   = $this->params;
                 if (null !== $this->controller) {
                     $myParams['controller'] = $this->controller;
@@ -174,7 +173,7 @@ class Mvc extends AbstractPage
 
         $router = $this->router;
         if (null === $router) {
-            $router = self::$defaultRouter;
+            $router = static::$defaultRouter;
         }
 
         if (!$router instanceof RouteStackInterface) {
@@ -407,7 +406,7 @@ class Mvc extends AbstractPage
      */
     public static function setDefaultRouter($router)
     {
-        self::$defaultRouter = $router;
+        static::$defaultRouter = $router;
     }
 
     /**
@@ -417,7 +416,7 @@ class Mvc extends AbstractPage
      */
     public static function getDefaultRouter()
     {
-        return self::$defaultRouter;
+        return static::$defaultRouter;
     }
 
     // Public methods:
@@ -436,6 +435,8 @@ class Mvc extends AbstractPage
                  'controller' => $this->getController(),
                  'params'     => $this->getParams(),
                  'route'      => $this->getRoute(),
+                 'router'     => $this->getRouter(),
+                 'route_match' => $this->getRouteMatch(),
             )
         );
     }

@@ -8,7 +8,7 @@
     ],
     "autoload": {
         "psr-0": {
-            "Zend\\Mvc": ""
+            "Zend\\Mvc\\": ""
         }
     },
     "target-dir": "Zend/Mvc",
@@ -22,6 +22,7 @@
         "zendframework/zend-uri": "self.version",
         "zendframework/zend-servicemanager": "self.version",
         "zendframework/zend-stdlib": "self.version",
+        "zendframework/zend-text": "self.version",
         "zendframework/zend-view": "self.version"
     }
 }

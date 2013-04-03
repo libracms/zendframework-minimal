@@ -3,21 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Cache
  */
 
 namespace Zend\Cache\Pattern;
 
 use Zend\Cache\Exception;
-use Zend\Cache\StorageFactory;
 
-/**
- * @category   Zend
- * @package    Zend_Cache
- * @subpackage Pattern
- */
 class OutputCache extends AbstractPattern
 {
     /**
@@ -50,8 +43,8 @@ class OutputCache extends AbstractPattern
      * else start buffering output until end() is called or the script ends.
      *
      * @param  string  $key Key
-     * @return boolean
-     * @throws Exception
+     * @throws Exception\MissingKeyException if key is missing
+     * @return bool
      */
     public function start($key)
     {
@@ -76,8 +69,8 @@ class OutputCache extends AbstractPattern
      * Stops buffering output, write buffered data to cache using the given key on start()
      * and displays the buffer.
      *
-     * @return boolean TRUE on success, FALSE on failure writing to cache
-     * @throws Exception
+     * @throws Exception\RuntimeException if output cache not started or buffering not active
+     * @return bool TRUE on success, FALSE on failure writing to cache
      */
     public function end()
     {
@@ -86,7 +79,7 @@ class OutputCache extends AbstractPattern
             throw new Exception\RuntimeException('Output cache not started');
         }
 
-        $output = ob_end_flush();
+        $output = ob_get_flush();
         if ($output === false) {
             throw new Exception\RuntimeException('Output buffering not active');
         }

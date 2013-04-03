@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Feed
  */
 
 namespace Zend\Feed\Reader\Extension\Content;
@@ -13,10 +12,6 @@ namespace Zend\Feed\Reader\Extension\Content;
 use Zend\Feed\Reader;
 use Zend\Feed\Reader\Extension;
 
-/**
-* @category Zend
-* @package Reader\Reader
-*/
 class Entry extends Extension\AbstractEntry
 {
 
@@ -25,9 +20,9 @@ class Entry extends Extension\AbstractEntry
         if ($this->getType() !== Reader\Reader::TYPE_RSS_10
             && $this->getType() !== Reader\Reader::TYPE_RSS_090
         ) {
-            $content = $this->xpath->evaluate('string('.$this->getXpathPrefix().'/content:encoded)');
+            $content = $this->xpath->evaluate('string(' . $this->getXpathPrefix() . '/content:encoded)');
         } else {
-            $content = $this->xpath->evaluate('string('.$this->getXpathPrefix().'/content:encoded)');
+            $content = $this->xpath->evaluate('string(' . $this->getXpathPrefix() . '/content:encoded)');
         }
         return $content;
     }

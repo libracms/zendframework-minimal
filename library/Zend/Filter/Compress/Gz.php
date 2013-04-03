@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Filter
  */
 
 namespace Zend\Filter\Compress;
@@ -14,9 +13,6 @@ use Zend\Filter\Exception;
 
 /**
  * Compression adapter for Gzip (ZLib)
- *
- * @category   Zend
- * @package    Zend_Filter
  */
 class Gz extends AbstractCompressionAlgorithm
 {
@@ -40,6 +36,7 @@ class Gz extends AbstractCompressionAlgorithm
      * Class constructor
      *
      * @param null|array|\Traversable $options (Optional) Options to set
+     * @throws Exception\ExtensionNotLoadedException if zlib extension not loaded
      */
     public function __construct($options = null)
     {
@@ -63,6 +60,7 @@ class Gz extends AbstractCompressionAlgorithm
      * Sets a new compression level
      *
      * @param integer $level
+     * @throws Exception\InvalidArgumentException
      * @return Gz
      */
     public function setLevel($level)

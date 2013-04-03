@@ -3,24 +3,18 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Form
  */
 
 namespace Zend\Form\Element;
 
 use Zend\Form\Element;
 use Zend\Form\ElementPrepareAwareInterface;
-use Zend\Form\Form;
+use Zend\Form\FormInterface;
 use Zend\InputFilter\InputProviderInterface;
 use Zend\Validator\Csrf as CsrfValidator;
 
-/**
- * @category   Zend
- * @package    Zend_Form
- * @subpackage Element
- */
 class Csrf extends Element implements InputProviderInterface, ElementPrepareAwareInterface
 {
     /**
@@ -41,6 +35,24 @@ class Csrf extends Element implements InputProviderInterface, ElementPrepareAwar
      * @var CsrfValidator
      */
     protected $csrfValidator;
+
+    /**
+     * Accepted options for Csrf:
+     * - csrf_options: an array used in the Csrf
+     *
+     * @param array|\Traversable $options
+     * @return Csrf
+     */
+    public function setOptions($options)
+    {
+        parent::setOptions($options);
+
+        if (isset($options['csrf_options'])) {
+            $this->setCsrfValidatorOptions($options['csrf_options']);
+        }
+
+        return $this;
+    }
 
     /**
      * @return array
@@ -70,7 +82,7 @@ class Csrf extends Element implements InputProviderInterface, ElementPrepareAwar
         if (null === $this->csrfValidator) {
             $csrfOptions = $this->getCsrfValidatorOptions();
             $csrfOptions = array_merge($csrfOptions, array('name' => $this->getName()));
-            $this->csrfValidator = new CsrfValidator($csrfOptions);
+            $this->setCsrfValidator(new CsrfValidator($csrfOptions));
         }
         return $this->csrfValidator;
     }
@@ -90,7 +102,7 @@ class Csrf extends Element implements InputProviderInterface, ElementPrepareAwar
      *
      * Retrieves the hash from the validator
      *
-     * @return void
+     * @return string
      */
     public function getValue()
     {
@@ -137,7 +149,7 @@ class Csrf extends Element implements InputProviderInterface, ElementPrepareAwar
     /**
      * Prepare the form element
      */
-    public function prepareElement(Form $form)
+    public function prepareElement(FormInterface $form)
     {
         $this->getCsrfValidator()->getHash(true);
     }

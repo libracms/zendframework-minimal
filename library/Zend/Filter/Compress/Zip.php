@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Filter
  */
 
 namespace Zend\Filter\Compress;
@@ -15,9 +14,6 @@ use ZipArchive;
 
 /**
  * Compression adapter for zip
- *
- * @category   Zend
- * @package    Zend_Filter
  */
 class Zip extends AbstractCompressionAlgorithm
 {
@@ -40,6 +36,7 @@ class Zip extends AbstractCompressionAlgorithm
      * Class constructor
      *
      * @param  null|array|\Traversable $options (Optional) Options to set
+     * @throws Exception\ExtensionNotLoadedException if zip extension not loaded
      */
     public function __construct($options = null)
     {
@@ -87,6 +84,7 @@ class Zip extends AbstractCompressionAlgorithm
      * Sets the target to use
      *
      * @param  string $target
+     * @throws Exception\InvalidArgumentException
      * @return Zip
      */
     public function setTarget($target)

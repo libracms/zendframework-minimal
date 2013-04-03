@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Console
  */
 
 namespace Zend\Console\Adapter;
@@ -27,10 +26,6 @@ use Zend\Console\Charset;
  * Console should not run in UTF8 code page (65001), because ANSICON does not behave well with it.
  * It's best to use non-unicode code page 437, 850, 851, 852 or similar. Run "help mode" for more
  * information on how to change Windows console code page.
- *
- * @category   Zend
- * @package    Zend_Console
- * @subpackage Adapter
  */
 class WindowsAnsicon extends Posix
 {
@@ -264,7 +259,7 @@ class WindowsAnsicon extends Posix
             $result = $return = null;
             exec(
                 'powershell -NonInteractive -NoProfile -NoLogo -OutputFormat Text -Command "'
-                    . '[int[]] $mask = '.join(',',$asciiMask).';'
+                    . '[int[]] $mask = '.join(',', $asciiMask).';'
                     . 'do {'
                         . '$key = $Host.UI.RawUI.ReadKey(\'NoEcho,IncludeKeyDown\').VirtualKeyCode;'
                     . '} while( !($mask -contains $key) );'
@@ -276,7 +271,7 @@ class WindowsAnsicon extends Posix
 
             $char = !empty($result) ? trim(implode('', $result)) : null;
 
-            if (!$return && $char && ($mask === null || in_array($char,$asciiMask))) {
+            if (!$return && $char && ($mask === null || in_array($char, $asciiMask))) {
                 // We have obtained an ASCII code, check if it is a carriage
                 // return and normalize it as needed
                 if ($char == 13) {

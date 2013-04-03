@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Server
  */
 
 namespace Zend\Server\Reflection;
@@ -14,15 +13,11 @@ namespace Zend\Server\Reflection;
  * Parameter Reflection
  *
  * Decorates a ReflectionParameter to allow setting the parameter type
- *
- * @category   Zend
- * @package    Zend_Server
- * @subpackage Zend_Server_Reflection
  */
 class ReflectionParameter
 {
     /**
-     * @var ReflectionParameter
+     * @var \ReflectionParameter
      */
     protected $reflection;
 
@@ -47,7 +42,7 @@ class ReflectionParameter
     /**
      * Constructor
      *
-     * @param ReflectionParameter $r
+     * @param \ReflectionParameter $r
      * @param string $type Parameter type
      * @param string $description Parameter description
      */
@@ -63,6 +58,7 @@ class ReflectionParameter
      *
      * @param string $method
      * @param array $args
+     * @throws Exception\BadMethodCallException
      * @return mixed
      */
     public function __call($method, $args)
@@ -88,6 +84,7 @@ class ReflectionParameter
      * Set parameter type
      *
      * @param string|null $type
+     * @throws Exception\InvalidArgumentException
      * @return void
      */
     public function setType($type)
@@ -113,6 +110,7 @@ class ReflectionParameter
      * Set parameter description
      *
      * @param string|null $description
+     * @throws Exception\InvalidArgumentException
      * @return void
      */
     public function setDescription($description)

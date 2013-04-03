@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Http
  */
 
 namespace Zend\Http;
@@ -21,8 +20,6 @@ use Zend\Loader\PluginClassLocator;
  * Basic HTTP headers collection functionality
  * Handles aggregation of headers
  *
- * @category   Zend
- * @package    Zend_Http
  * @see        http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
  */
 class Headers implements Countable, Iterator
@@ -264,17 +261,17 @@ class Headers implements Countable, Iterator
                 $headers[] = $this->headers[$index];
             }
             return new ArrayIterator($headers);
-        } else {
-            $index = array_search($key, $this->headersKeys);
-            if ($index === false) {
-                return false;
-            }
-            if (is_array($this->headers[$index])) {
-                return $this->lazyLoadHeader($index);
-            } else {
-                return $this->headers[$index];
-            }
         }
+
+        $index = array_search($key, $this->headersKeys);
+        if ($index === false) {
+            return false;
+        }
+
+        if (is_array($this->headers[$index])) {
+            return $this->lazyLoadHeader($index);
+        }
+        return $this->headers[$index];
     }
 
     /**
@@ -441,11 +438,10 @@ class Headers implements Countable, Iterator
                 $this->headers[]     = $header;
             }
             return $current;
-        } else {
-            $this->headers[$index] = $current = $headers;
-            return $current;
         }
 
+        $this->headers[$index] = $current = $headers;
+        return $current;
     }
 
     /**

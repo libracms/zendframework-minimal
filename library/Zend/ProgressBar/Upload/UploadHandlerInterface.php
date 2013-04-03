@@ -5,12 +5,21 @@
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
  * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Code
  */
 
-namespace Zend\Code\Scanner;
+namespace Zend\ProgressBar\Upload;
 
-class VariableScanner
+use Traversable;
+use Zend\Stdlib\ArrayUtils;
+
+/**
+ * Interface for Upload Progress Handlers
+ */
+interface UploadHandlerInterface
 {
-    // @todo
+    /**
+     * @param  string $id
+     * @return array
+     */
+    public function getProgress($id);
 }

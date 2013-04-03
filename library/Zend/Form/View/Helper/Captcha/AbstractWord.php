@@ -3,24 +3,17 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Form
  */
 
 namespace Zend\Form\View\Helper\Captcha;
 
-use Traversable;
 use Zend\Captcha\AdapterInterface as CaptchaAdapter;
 use Zend\Form\ElementInterface;
 use Zend\Form\Exception;
 use Zend\Form\View\Helper\FormInput;
 
-/**
- * @category   Zend
- * @package    Zend_Form
- * @subpackage View
- */
 abstract class AbstractWord extends FormInput
 {
     const CAPTCHA_APPEND  = 'append';
@@ -44,8 +37,9 @@ abstract class AbstractWord extends FormInput
     /**
      * Set value for captchaPosition
      *
-     * @param  mixed captchaPosition
-     * @return $this
+     * @param  mixed                              $captchaPosition
+     * @throws Exception\InvalidArgumentException
+     * @return self
      */
     public function setCaptchaPosition($captchaPosition)
     {
@@ -60,6 +54,7 @@ abstract class AbstractWord extends FormInput
             ));
         }
         $this->captchaPosition = $captchaPosition;
+
         return $this;
     }
 
@@ -76,12 +71,13 @@ abstract class AbstractWord extends FormInput
     /**
      * Set separator string for captcha and inputs
      *
-     * @param  string $separator
-     * @return Word
+     * @param  string       $separator
+     * @return AbstractWord
      */
     public function setSeparator($separator)
     {
         $this->separator = (string) $separator;
+
         return $this;
     }
 
@@ -104,7 +100,8 @@ abstract class AbstractWord extends FormInput
      *
      * More specific renderers will consume this and render it.
      *
-     * @param  ElementInterface $element
+     * @param  ElementInterface          $element
+     * @throws Exception\DomainException
      * @return string
      */
     protected function renderCaptchaInputs(ElementInterface $element)
@@ -129,9 +126,8 @@ abstract class AbstractWord extends FormInput
 
         $hidden    = $this->renderCaptchaHidden($captcha, $attributes);
         $input     = $this->renderCaptchaInput($captcha, $attributes);
-        $separator = $this->getSeparator();
 
-        return $hidden . $separator . $input;
+        return $hidden . $input;
     }
 
     /**
@@ -155,13 +151,18 @@ abstract class AbstractWord extends FormInput
      * Render the hidden input with the captcha identifier
      *
      * @param  CaptchaAdapter $captcha
-     * @param  array $attributes
+     * @param  array          $attributes
      * @return string
      */
     protected function renderCaptchaHidden(CaptchaAdapter $captcha, array $attributes)
     {
         $attributes['type']  = 'hidden';
         $attributes['name'] .= '[id]';
+
+        if (isset($attributes['id'])) {
+            $attributes['id'] .= '-hidden';
+        }
+
         if (method_exists($captcha, 'getId')) {
             $attributes['value'] = $captcha->getId();
         } elseif (array_key_exists('value', $attributes)) {
@@ -175,6 +176,7 @@ abstract class AbstractWord extends FormInput
             $this->createAttributesString($attributes),
             $closingBracket
         );
+
         return $hidden;
     }
 
@@ -182,7 +184,7 @@ abstract class AbstractWord extends FormInput
      * Render the input for capturing the captcha value from the client
      *
      * @param  CaptchaAdapter $captcha
-     * @param  array $attributes
+     * @param  array          $attributes
      * @return string
      */
     protected function renderCaptchaInput(CaptchaAdapter $captcha, array $attributes)
@@ -198,6 +200,7 @@ abstract class AbstractWord extends FormInput
             $this->createAttributesString($attributes),
             $closingBracket
         );
+
         return $input;
     }
 }

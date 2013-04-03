@@ -3,21 +3,23 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Debug.php
  */
 
 namespace Zend\Debug;
 
+use Zend\Escaper\Escaper;
+
 /**
  * Concrete class for generating debug dumps related to the output source.
- *
- * @category   Zend
- * @package    Zend_Debug
  */
 class Debug
 {
+    /**
+     * @var Escaper
+     */
+    protected static $escaper = null;
 
     /**
      * @var string
@@ -32,10 +34,10 @@ class Debug
      */
     public static function getSapi()
     {
-        if (self::$sapi === null) {
-            self::$sapi = PHP_SAPI;
+        if (static::$sapi === null) {
+            static::$sapi = PHP_SAPI;
         }
-        return self::$sapi;
+        return static::$sapi;
     }
 
     /**
@@ -47,7 +49,32 @@ class Debug
      */
     public static function setSapi($sapi)
     {
-        self::$sapi = $sapi;
+        static::$sapi = $sapi;
+    }
+
+    /**
+     * Set Escaper instance
+     *
+     * @param  Escaper $escaper
+     */
+    public static function setEscaper(Escaper $escaper)
+    {
+        static::$escaper = $escaper;
+    }
+
+    /**
+     * Get Escaper instance
+     *
+     * Lazy loads an instance if none provided.
+     *
+     * @return Escaper
+     */
+    public static function getEscaper()
+    {
+        if (null === static::$escaper) {
+            static::setEscaper(new Escaper());
+        }
+        return static::$escaper;
     }
 
     /**
@@ -72,13 +99,13 @@ class Debug
 
         // neaten the newlines and indents
         $output = preg_replace("/\]\=\>\n(\s+)/m", "] => ", $output);
-        if (self::getSapi() == 'cli') {
+        if (static::getSapi() == 'cli') {
             $output = PHP_EOL . $label
                     . PHP_EOL . $output
                     . PHP_EOL;
         } else {
             if (!extension_loaded('xdebug')) {
-                $output = htmlspecialchars($output, ENT_QUOTES);
+                $output = static::getEscaper()->escapeHtml($output);
             }
 
             $output = '<pre>'
@@ -88,9 +115,8 @@ class Debug
         }
 
         if ($echo) {
-            echo($output);
+            echo $output;
         }
         return $output;
     }
-
 }

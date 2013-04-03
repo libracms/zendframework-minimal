@@ -3,30 +3,23 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Form
  */
 
 namespace Zend\Form\View\Helper;
 
-use Traversable;
 use Zend\Form\ElementInterface;
 use Zend\Form\Element\MultiCheckbox as MultiCheckboxElement;
 use Zend\Form\Exception;
 
-/**
- * @category   Zend
- * @package    Zend_Form
- * @subpackage View
- */
 class FormMultiCheckbox extends FormInput
 {
     const LABEL_APPEND  = 'append';
     const LABEL_PREPEND = 'prepend';
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $useHiddenElement = false;
 
@@ -63,7 +56,8 @@ class FormMultiCheckbox extends FormInput
     /**
      * Set value for labelPosition
      *
-     * @param  mixed labelPosition
+     * @param  mixed $labelPosition
+     * @throws Exception\InvalidArgumentException
      * @return $this
      */
     public function setLabelPosition($labelPosition)
@@ -141,7 +135,7 @@ class FormMultiCheckbox extends FormInput
      * Returns the option for prefixing the element with a hidden element
      * for the unset value.
      *
-     * @return boolean
+     * @return bool
      */
     public function getUseHiddenElement()
     {
@@ -152,7 +146,7 @@ class FormMultiCheckbox extends FormInput
      * Sets the option for prefixing the element with a hidden element
      * for the unset value.
      *
-     * @param  boolean $useHiddenElement
+     * @param  bool $useHiddenElement
      * @return FormMultiCheckbox
      */
     public function setUseHiddenElement($useHiddenElement)
@@ -174,7 +168,7 @@ class FormMultiCheckbox extends FormInput
     /**
      * Sets the unchecked value used when "UseHiddenElement" is turned on.
      *
-     * @param  boolean $value
+     * @param  bool $value
      * @return FormMultiCheckbox
      */
     public function setUncheckedValue($value)
@@ -187,6 +181,8 @@ class FormMultiCheckbox extends FormInput
      * Render a form <input> element from the provided $element
      *
      * @param  ElementInterface $element
+     * @throws Exception\InvalidArgumentException
+     * @throws Exception\DomainException
      * @return string
      */
     public function render(ElementInterface $element)
@@ -199,12 +195,6 @@ class FormMultiCheckbox extends FormInput
         }
 
         $name = static::getName($element);
-        if ($name === null || $name === '') {
-            throw new Exception\DomainException(sprintf(
-                '%s requires that the element has an assigned name; none discovered',
-                __METHOD__
-            ));
-        }
 
         $options = $element->getValueOptions();
         if (empty($options)) {
@@ -446,10 +436,18 @@ class FormMultiCheckbox extends FormInput
      * Get element name
      *
      * @param  ElementInterface $element
+     * @throws Exception\DomainException
      * @return string
      */
     protected static function getName(ElementInterface $element)
     {
-        return $element->getName() . '[]';
+        $name = $element->getName();
+        if ($name === null || $name === '') {
+            throw new Exception\DomainException(sprintf(
+                '%s requires that the element has an assigned name; none discovered',
+                __METHOD__
+            ));
+        }
+        return $name . '[]';
     }
 }

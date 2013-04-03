@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Filter
  */
 
 namespace Zend\Filter\Compress;
@@ -14,9 +13,6 @@ use Zend\Filter\Exception;
 
 /**
  * Compression adapter for Bz2
- *
- * @category   Zend
- * @package    Zend_Filter
  */
 class Bz2 extends AbstractCompressionAlgorithm
 {
@@ -38,6 +34,7 @@ class Bz2 extends AbstractCompressionAlgorithm
      * Class constructor
      *
      * @param null|array|\Traversable $options (Optional) Options to set
+     * @throws Exception\ExtensionNotLoadedException if bz2 extension not loaded
      */
     public function __construct($options = null)
     {
@@ -60,7 +57,8 @@ class Bz2 extends AbstractCompressionAlgorithm
     /**
      * Sets a new blocksize
      *
-     * @param  integer $level
+     * @param  integer $blocksize
+     * @throws Exception\InvalidArgumentException
      * @return Bz2
      */
     public function setBlocksize($blocksize)

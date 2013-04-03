@@ -3,26 +3,19 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_ModuleManager
  */
 
 namespace Zend\ModuleManager\Listener;
 
 use Traversable;
 use Zend\EventManager\EventManagerInterface;
-use Zend\ModuleManager\Feature\ServiceProviderInterface;
 use Zend\ModuleManager\ModuleEvent;
 use Zend\ServiceManager\Config as ServiceConfig;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\ArrayUtils;
 
-/**
- * @category   Zend
- * @package    Zend_ModuleManager
- * @subpackage Listener
- */
 class ServiceListener implements ServiceListenerInterface
 {
     /**
@@ -49,6 +42,7 @@ class ServiceListener implements ServiceListenerInterface
 
     /**
      * @param ServiceManager $serviceManager
+     * @param null|array $configuration
      */
     public function __construct(ServiceManager $serviceManager, $configuration = null)
     {
@@ -75,6 +69,7 @@ class ServiceListener implements ServiceListenerInterface
      * @param  string                $key             Configuration key
      * @param  string                $moduleInterface FQCN as string
      * @param  string                $method          Method name
+     * @throws Exception\RuntimeException
      * @return ServiceListener
      */
     public function addServiceManager($serviceManager, $key, $moduleInterface, $method)
@@ -187,6 +182,7 @@ class ServiceListener implements ServiceListenerInterface
      * used to configure the service manager.
      *
      * @param  ModuleEvent $e
+     * @throws Exception\RuntimeException
      * @return void
      */
     public function onLoadModulesPost(ModuleEvent $e)
@@ -235,6 +231,7 @@ class ServiceListener implements ServiceListenerInterface
      * the internal service configuration.
      *
      * @param  ServiceConfig|string $config Instance of ServiceConfig or class name
+     * @throws Exception\RuntimeException
      * @return array
      */
     protected function serviceConfigToArray($config)

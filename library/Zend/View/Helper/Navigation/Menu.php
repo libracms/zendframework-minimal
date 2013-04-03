@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_View
  */
 
 namespace Zend\View\Helper\Navigation;
@@ -18,10 +17,6 @@ use Zend\View\Exception;
 
 /**
  * Helper for rendering menus from navigation containers
- *
- * @category   Zend
- * @package    Zend_View
- * @subpackage Helper
  */
 class Menu extends AbstractHelper
 {
@@ -314,13 +309,13 @@ class Menu extends AbstractHelper
      * Renders the deepest active menu within [$minDepth, $maxDepth], (called
      * from {@link renderMenu()})
      *
-     * @param  AbstractContainer         $container  container to render
-     * @param  array                     $active     active page and depth
-     * @param  string                    $ulClass    CSS class for first UL
-     * @param  string                    $indent     initial indentation
-     * @param  int|null                  $minDepth   minimum depth
-     * @param  int|null                  $maxDepth   maximum depth
-     * @return string                                rendered menu
+     * @param  AbstractContainer         $container    container to render
+     * @param  string                    $ulClass      CSS class for first UL
+     * @param  string                    $indent       initial indentation
+     * @param  int|null                  $minDepth     minimum depth
+     * @param  int|null                  $maxDepth     maximum depth
+     * @param  bool                      $escapeLabels Whether or not to escape the labels
+     * @return string                                  rendered menu
      */
     protected function renderDeepestMenu(AbstractContainer $container,
                                          $ulClass,
@@ -367,12 +362,13 @@ class Menu extends AbstractHelper
     /**
      * Renders a normal menu (called from {@link renderMenu()})
      *
-     * @param  AbstractContainer                 $container   container to render
-     * @param  string                    $ulClass     CSS class for first UL
-     * @param  string                    $indent      initial indentation
-     * @param  int|null                  $minDepth    minimum depth
-     * @param  int|null                  $maxDepth    maximum depth
-     * @param  bool                      $onlyActive  render only active branch?
+     * @param  AbstractContainer         $container    container to render
+     * @param  string                    $ulClass      CSS class for first UL
+     * @param  string                    $indent       initial indentation
+     * @param  int|null                  $minDepth     minimum depth
+     * @param  int|null                  $maxDepth     maximum depth
+     * @param  bool                      $onlyActive   render only active branch?
+     * @param  bool                      $escapeLabels Whether or not to escape the labels
      * @return string
      */
     protected function renderNormalMenu(AbstractContainer $container,

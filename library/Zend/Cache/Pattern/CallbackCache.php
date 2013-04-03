@@ -3,22 +3,15 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Cache
  */
 
 namespace Zend\Cache\Pattern;
 
 use Zend\Cache\Exception;
-use Zend\Cache\StorageFactory;
 use Zend\Stdlib\ErrorHandler;
 
-/**
- * @category   Zend
- * @package    Zend_Cache
- * @subpackage Pattern
- */
 class CallbackCache extends AbstractPattern
 {
     /**
@@ -44,7 +37,8 @@ class CallbackCache extends AbstractPattern
      * @param  callable   $callback  A valid callback
      * @param  array      $args      Callback arguments
      * @return mixed Result
-     * @throws Exception
+     * @throws Exception\RuntimeException if invalid cached data
+     * @throws \Exception
      */
     public function call($callback, array $args = array())
     {
@@ -100,7 +94,8 @@ class CallbackCache extends AbstractPattern
      * @param  string $function  Function name to call
      * @param  array  $args      Function arguments
      * @return mixed
-     * @throws Exception
+     * @throws Exception\RuntimeException
+     * @throws \Exception
      */
     public function __call($function, array $args)
     {
@@ -114,7 +109,8 @@ class CallbackCache extends AbstractPattern
      * @param  callable   $callback  A valid callback
      * @param  array      $args      Callback arguments
      * @return string
-     * @throws Exception
+     * @throws Exception\RuntimeException
+     * @throws Exception\InvalidArgumentException
      */
     public function generateKey($callback, array $args = array())
     {
@@ -127,8 +123,9 @@ class CallbackCache extends AbstractPattern
      *
      * @param  callable   $callback  A valid callback
      * @param  array      $args      Callback arguments
+     * @throws Exception\RuntimeException if callback not serializable
+     * @throws Exception\InvalidArgumentException if invalid callback
      * @return string
-     * @throws Exception
      */
     protected function generateCallbackKey($callback, array $args)
     {
@@ -173,8 +170,8 @@ class CallbackCache extends AbstractPattern
      * Generate a unique key of the argument part.
      *
      * @param  array $args
+     * @throws Exception\RuntimeException
      * @return string
-     * @throws Exception
      */
     protected function generateArgumentsKey(array $args)
     {

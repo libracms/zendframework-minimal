@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Filter
  */
 
 namespace Zend\Filter;
@@ -13,10 +12,6 @@ namespace Zend\Filter;
 use Countable;
 use Zend\Stdlib\PriorityQueue;
 
-/**
- * @category   Zend
- * @package    Zend_Filter
- */
 class FilterChain extends AbstractFilter implements Countable
 {
     /**
@@ -128,7 +123,7 @@ class FilterChain extends AbstractFilter implements Countable
      *
      * @param  mixed $name
      * @param  array $options
-     * @return Filter
+     * @return FilterInterface
      */
     public function plugin($name, array $options = array())
     {
@@ -141,6 +136,7 @@ class FilterChain extends AbstractFilter implements Countable
      *
      * @param  callable|FilterInterface $callback A Filter implementation or valid PHP callback
      * @param  int $priority Priority at which to enqueue filter; defaults to 1000 (higher executes earlier)
+     * @throws Exception\InvalidArgumentException
      * @return FilterChain
      */
     public function attach($callback, $priority = self::DEFAULT_PRIORITY)
@@ -161,7 +157,7 @@ class FilterChain extends AbstractFilter implements Countable
     /**
      * Attach a filter to the chain using a short name
      *
-     * Retrieves the filter from the attached plugin broker, and then calls attach()
+     * Retrieves the filter from the attached plugin manager, and then calls attach()
      * with the retrieved instance.
      *
      * @param  string $name
@@ -223,5 +219,26 @@ class FilterChain extends AbstractFilter implements Countable
         }
 
         return $valueFiltered;
+    }
+
+    /**
+     * Clone filters
+     */
+    public function __clone()
+    {
+        $this->filters = clone $this->filters;
+    }
+
+    /**
+     * Prepare filter chain for serialization
+     *
+     * Plugin manager (property 'plugins') cannot
+     * be serialized. On wakeup the property remains unset
+     * and next invokation to getPluginManager() sets
+     * the default plugin manager instance (FilterPluginManager).
+     */
+    public function __sleep()
+    {
+        return array('filters');
     }
 }

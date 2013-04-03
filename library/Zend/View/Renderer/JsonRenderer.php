@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_View
  */
 
 namespace Zend\View\Renderer;
@@ -22,10 +21,6 @@ use Zend\View\Resolver\ResolverInterface as Resolver;
 
 /**
  * JSON renderer
- *
- * @category   Zend
- * @package    Zend_View
- * @subpackage Renderer
  */
 class JsonRenderer implements Renderer, TreeRendererInterface
 {
@@ -107,7 +102,7 @@ class JsonRenderer implements Renderer, TreeRendererInterface
      */
     public function hasJsonpCallback()
     {
-        return !is_null($this->jsonpCallback);
+        return (null !== $this->jsonpCallback);
     }
 
     /**
@@ -124,8 +119,9 @@ class JsonRenderer implements Renderer, TreeRendererInterface
      * Renders values as JSON
      *
      * @todo   Determine what use case exists for accepting both $nameOrModel and $values
-     * @param  string|Model $name The script/resource process, or a view model
-     * @param  null|array|\ArrayAccess Values to use during rendering
+     * @param  string|Model $nameOrModel The script/resource process, or a view model
+     * @param  null|array|\ArrayAccess $values Values to use during rendering
+     * @throws Exception\DomainException
      * @return string The script output.
      */
     public function render($nameOrModel, $values = null)
@@ -141,7 +137,7 @@ class JsonRenderer implements Renderer, TreeRendererInterface
             }
 
             if ($this->hasJsonpCallback()) {
-                $values = $this->jsonpCallback.'('.$values.');';
+                $values = $this->jsonpCallback . '(' . $values . ');';
             }
             return $values;
         }
@@ -159,7 +155,7 @@ class JsonRenderer implements Renderer, TreeRendererInterface
             }
 
             if ($this->hasJsonpCallback()) {
-                $return = $this->jsonpCallback.'('.$return.');';
+                $return = $this->jsonpCallback . '(' . $return . ');';
             }
             return $return;
         }

@@ -3,18 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Console
  */
 
 namespace Zend\Console\Prompt;
 
-/**
- * @category   Zend
- * @package    Zend_Console
- * @subpackage Prompt
- */
 class Confirm extends Char
 {
     /**
@@ -85,7 +79,7 @@ class Confirm extends Char
     public function setNoChar($noChar)
     {
         $this->noChar = $noChar;
-        $this->setAllowedChars($this->yesChar.$this->noChar);
+        $this->setAllowedChars($this->yesChar . $this->noChar);
     }
 
     /**
@@ -102,7 +96,7 @@ class Confirm extends Char
     public function setYesChar($yesChar)
     {
         $this->yesChar = $yesChar;
-        $this->setAllowedChars($this->yesChar.$this->noChar);
+        $this->setAllowedChars($this->yesChar . $this->noChar);
     }
 
     /**
@@ -112,5 +106,4 @@ class Confirm extends Char
     {
         return $this->yesChar;
     }
-
 }

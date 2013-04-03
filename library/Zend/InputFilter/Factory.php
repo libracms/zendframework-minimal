@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_InputFilter
  */
 
 namespace Zend\InputFilter;
@@ -16,10 +15,6 @@ use Zend\Stdlib\ArrayUtils;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\ValidatorInterface;
 
-/**
- * @category   Zend
- * @package    Zend_InputFilter
- */
 class Factory
 {
     protected $defaultFilterChain;
@@ -93,6 +88,8 @@ class Factory
      * Factory for input objects
      *
      * @param  array|Traversable $inputSpecification
+     * @throws Exception\InvalidArgumentException
+     * @throws Exception\RuntimeException
      * @return InputInterface|InputFilterInterface
      */
     public function createInput($inputSpecification)
@@ -156,6 +153,9 @@ class Factory
                         $input->setRequired(!$value);
                     }
                     break;
+                case 'fallback_value':
+                    $input->setFallbackValue($value);
+                    break;
                 case 'filters':
                     if ($value instanceof FilterChain) {
                         $input->setFilterChain($value);
@@ -197,6 +197,8 @@ class Factory
      * Factory for input filters
      *
      * @param  array|Traversable $inputFilterSpecification
+     * @throws Exception\InvalidArgumentException
+     * @throws Exception\RuntimeException
      * @return InputFilterInterface
      */
     public function createInputFilter($inputFilterSpecification)
@@ -228,13 +230,19 @@ class Factory
         if (!$inputFilter instanceof InputFilterInterface) {
             throw new Exception\RuntimeException(sprintf(
                 'InputFilter factory expects the "type" to be a class implementing %s; received "%s"',
-                'Zend\InputFilter\InputFilterInterface',
-                $class
-            ));
+                'Zend\InputFilter\InputFilterInterface', $class));
         }
 
         foreach ($inputFilterSpecification as $key => $value) {
-            $input = $this->createInput($value);
+
+            if (($value instanceof InputInterface)
+                || ($value instanceof InputFilterInterface)
+            ) {
+                $input = $value;
+            } else {
+                $input = $this->createInput($value);
+            }
+
             $inputFilter->add($input, $key);
         }
 
@@ -274,7 +282,7 @@ class Factory
     {
         foreach ($validators as $validator) {
             if ($validator instanceof ValidatorInterface) {
-                $chain->addValidator($validator);
+                $chain->attach($validator);
                 continue;
             }
 
@@ -293,7 +301,7 @@ class Factory
                 if (isset($validator['break_chain_on_failure'])) {
                     $breakChainOnFailure = $validator['break_chain_on_failure'];
                 }
-                $chain->addByName($name, $options, $breakChainOnFailure);
+                $chain->attachByName($name, $options, $breakChainOnFailure);
                 continue;
             }
 

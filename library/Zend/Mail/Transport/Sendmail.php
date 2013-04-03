@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Mail
  */
 
 namespace Zend\Mail\Transport;
@@ -14,15 +13,10 @@ use Traversable;
 use Zend\Mail;
 use Zend\Mail\Address\AddressInterface;
 use Zend\Mail\Exception;
-use Zend\Mail\Headers;
 use Zend\Mail\Header\HeaderInterface;
 
 /**
  * Class for sending email via the PHP internal mail() function
- *
- * @category   Zend
- * @package    Zend_Mail
- * @subpackage Transport
  */
 class Sendmail implements TransportInterface
 {
@@ -179,7 +173,12 @@ class Sendmail implements TransportInterface
      */
     protected function prepareSubject(Mail\Message $message)
     {
-        return $message->getSubject();
+        $headers = $message->getHeaders();
+        if (!$headers->has('subject')) {
+            return null;
+        }
+        $header = $headers->get('subject');
+        return $header->getFieldValue(HeaderInterface::FORMAT_ENCODED);
     }
 
     /**
@@ -240,7 +239,7 @@ class Sendmail implements TransportInterface
 
         $sender = $message->getSender();
         if ($sender instanceof AddressInterface) {
-            $parameters .= ' -r ' . $sender->getEmail();
+            $parameters .= ' -f ' . $sender->getEmail();
             return $parameters;
         }
 
@@ -248,7 +247,7 @@ class Sendmail implements TransportInterface
         if (count($from)) {
             $from->rewind();
             $sender      = $from->current();
-            $parameters .= ' -r ' . $sender->getEmail();
+            $parameters .= ' -f ' . $sender->getEmail();
             return $parameters;
         }
 
@@ -292,7 +291,7 @@ class Sendmail implements TransportInterface
      * @param string $errfile
      * @param string $errline
      * @param array  $errcontext
-     * @return boolean always true
+     * @return bool always true
      */
     public function handleMailErrors($errno, $errstr, $errfile = null, $errline = null, array $errcontext = null)
     {

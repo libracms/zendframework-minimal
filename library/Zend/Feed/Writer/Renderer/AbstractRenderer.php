@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Feed
  */
 
 namespace Zend\Feed\Writer\Renderer;
@@ -15,8 +14,6 @@ use DOMElement;
 use Zend\Feed\Writer;
 
 /**
-* @category Zend
-* @package Zend_Feed_Writer
 */
 class AbstractRenderer
 {
@@ -27,7 +24,7 @@ class AbstractRenderer
     protected $extensions = array();
 
     /**
-     * @var mixed
+     * @var Writer\AbstractFeed
      */
     protected $container = null;
 
@@ -69,7 +66,7 @@ class AbstractRenderer
     /**
      * Constructor
      *
-     * @param  mixed $container
+     * @param Writer\AbstractFeed $container
      */
     public function __construct($container)
     {
@@ -111,7 +108,7 @@ class AbstractRenderer
     /**
      * Get data container of items being rendered
      *
-     * @return mixed
+     * @return Writer\AbstractFeed
      */
     public function getDataContainer()
     {

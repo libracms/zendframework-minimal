@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Cache
  */
 
 namespace Zend\Cache\Pattern;
@@ -13,10 +12,6 @@ namespace Zend\Cache\Pattern;
 use Zend\Cache;
 use Zend\Cache\Exception;
 
-/**
- * @category   Zend
- * @package    Zend_Cache
- */
 class ClassCache extends CallbackCache
 {
     /**
@@ -44,7 +39,8 @@ class ClassCache extends CallbackCache
      * @param  string $method  Method name to call
      * @param  array  $args    Method arguments
      * @return mixed
-     * @throws Exception
+     * @throws Exception\RuntimeException
+     * @throws \Exception
      */
     public function call($method, array $args = array())
     {
@@ -78,7 +74,7 @@ class ClassCache extends CallbackCache
      * @param  string     $method  The method
      * @param  array      $args    Callback arguments
      * @return string
-     * @throws Exception
+     * @throws Exception\RuntimeException
      */
     public function generateKey($method, array $args = array())
     {
@@ -95,7 +91,7 @@ class ClassCache extends CallbackCache
      * @param  callable   $callback  A valid callback
      * @param  array      $args      Callback arguments
      * @return string
-     * @throws Exception
+     * @throws Exception\RuntimeException
      */
     protected function generateCallbackKey($callback, array $args)
     {
@@ -110,7 +106,8 @@ class ClassCache extends CallbackCache
      * @param  string $method  Method name to call
      * @param  array  $args    Method arguments
      * @return mixed
-     * @throws Exception
+     * @throws Exception\RuntimeException
+     * @throws \Exception
      */
     public function __call($method, array $args)
     {

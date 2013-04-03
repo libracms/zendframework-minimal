@@ -3,22 +3,19 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Db
  */
 
 namespace Zend\Db\Adapter\Driver\Mysqli;
 
+use Iterator;
 use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\Adapter\Exception;
 
-/**
- * @category   Zend
- * @package    Zend_Db
- * @subpackage Adapter
- */
-class Result implements \Iterator, ResultInterface
+class Result implements
+    Iterator,
+    ResultInterface
 {
 
     /**
@@ -72,9 +69,11 @@ class Result implements \Iterator, ResultInterface
 
     /**
      * Initialize
+     *
      * @param mixed $resource
      * @param mixed $generatedValue
      * @param bool|null $isBuffered
+     * @throws Exception\InvalidArgumentException
      * @return Result
      */
     public function initialize($resource, $generatedValue, $isBuffered = null)
@@ -99,6 +98,7 @@ class Result implements \Iterator, ResultInterface
 
     /**
      * Force buffering
+     *
      * @throws Exception\RuntimeException
      */
     public function buffer()
@@ -113,6 +113,8 @@ class Result implements \Iterator, ResultInterface
     }
 
     /**
+     * Check if is buffered
+     *
      * @return bool|null
      */
     public function isBuffered()
@@ -122,6 +124,7 @@ class Result implements \Iterator, ResultInterface
 
     /**
      * Return the resource
+     *
      * @return mixed
      */
     public function getResource()
@@ -132,7 +135,7 @@ class Result implements \Iterator, ResultInterface
     /**
      * Is query result?
      *
-     * @return boolean
+     * @return bool
      */
     public function isQueryResult()
     {
@@ -141,19 +144,21 @@ class Result implements \Iterator, ResultInterface
 
     /**
      * Get affected rows
+     *
      * @return integer
      */
     public function getAffectedRows()
     {
         if ($this->resource instanceof \mysqli || $this->resource instanceof \mysqli_stmt) {
             return $this->resource->affected_rows;
-        } else {
-            return $this->resource->num_rows;
         }
+
+        return $this->resource->num_rows;
     }
 
     /**
      * Current
+     *
      * @return mixed
      */
     public function current()
@@ -178,7 +183,7 @@ class Result implements \Iterator, ResultInterface
      * get data out.  These values have to be references:
      * @see http://php.net/manual/en/mysqli-stmt.bind-result.php
      *
-     * @throws \RuntimeException
+     * @throws Exception\RuntimeException
      * @return bool
      */
     protected function loadDataFromMysqliStatement()
@@ -209,7 +214,7 @@ class Result implements \Iterator, ResultInterface
         }
 
         // dereference
-        for ($i = 0; $i < count($this->statementBindValues['keys']); $i++) {
+        for ($i = 0, $count = count($this->statementBindValues['keys']); $i < $count; $i++) {
             $this->currentData[$this->statementBindValues['keys'][$i]] = $this->statementBindValues['values'][$i];
         }
         $this->currentComplete = true;
@@ -221,7 +226,7 @@ class Result implements \Iterator, ResultInterface
     /**
      * Load from mysqli result
      *
-     * @return boolean
+     * @return bool
      */
     protected function loadFromMysqliResult()
     {
@@ -241,6 +246,8 @@ class Result implements \Iterator, ResultInterface
 
     /**
      * Next
+     *
+     * @return void
      */
     public function next()
     {
@@ -255,6 +262,7 @@ class Result implements \Iterator, ResultInterface
 
     /**
      * Key
+     *
      * @return mixed
      */
     public function key()
@@ -264,6 +272,9 @@ class Result implements \Iterator, ResultInterface
 
     /**
      * Rewind
+     *
+     * @throws Exception\RuntimeException
+     * @return void
      */
     public function rewind()
     {
@@ -279,7 +290,8 @@ class Result implements \Iterator, ResultInterface
 
     /**
      * Valid
-     * @return boolean
+     *
+     * @return bool
      */
     public function valid()
     {
@@ -289,13 +301,15 @@ class Result implements \Iterator, ResultInterface
 
         if ($this->resource instanceof \mysqli_stmt) {
             return $this->loadDataFromMysqliStatement();
-        } else {
-            return $this->loadFromMysqliResult();
         }
+
+        return $this->loadFromMysqliResult();
     }
 
     /**
      * Count
+     *
+     * @throws Exception\RuntimeException
      * @return integer
      */
     public function count()
@@ -307,7 +321,9 @@ class Result implements \Iterator, ResultInterface
     }
 
     /**
-     * @return int
+     * Get field count
+     *
+     * @return integer
      */
     public function getFieldCount()
     {
@@ -315,11 +331,12 @@ class Result implements \Iterator, ResultInterface
     }
 
     /**
+     * Get generated value
+     *
      * @return mixed|null
      */
     public function getGeneratedValue()
     {
         return $this->generatedValue;
     }
-
 }

@@ -3,23 +3,15 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Form
  */
 
 namespace Zend\Form\View\Helper;
 
-use Zend\I18n\Translator\Translator;
-use Zend\I18n\Translator\TranslatorAwareInterface;
 use Zend\Form\ElementInterface;
 use Zend\Form\Exception;
 
-/**
- * @category   Zend
- * @package    Zend_Form
- * @subpackage View
- */
 class FormLabel extends AbstractHelper
 {
     const APPEND  = 'append';
@@ -39,6 +31,8 @@ class FormLabel extends AbstractHelper
      * Generate an opening label tag
      *
      * @param  null|array|ElementInterface $attributesOrElement
+     * @throws Exception\InvalidArgumentException
+     * @throws Exception\DomainException
      * @return string
      */
     public function openTag($attributesOrElement = null)
@@ -98,6 +92,7 @@ class FormLabel extends AbstractHelper
      * @param  ElementInterface $element
      * @param  null|string $labelContent
      * @param  string $position
+     * @throws Exception\DomainException
      * @return string|FormLabel
      */
     public function __invoke(ElementInterface $element = null, $labelContent = null, $position = null)

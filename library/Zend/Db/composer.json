@@ -8,11 +8,14 @@
     ],
     "autoload": {
         "psr-0": {
-            "Zend\\Db": ""
+            "Zend\\Db\\": ""
         }
     },
     "target-dir": "Zend/Db",
     "require": {
         "php": ">=5.3.3"
+    },
+    "suggest": {
+        "zendframework/zend-stdlib": "self.version"
     }
 }

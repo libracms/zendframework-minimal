@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  * @package   Zend_File
  */
@@ -29,7 +29,8 @@ class Http extends AbstractAdapter
     /**
      * Constructor for Http File Transfers
      *
-     * @param array $options OPTIONAL Options to set
+     * @param  array $options OPTIONAL Options to set
+     * @throws Exception\PhpEnvironmentException if file uploads are not allowed
      */
     public function __construct($options = array())
     {
@@ -71,9 +72,8 @@ class Http extends AbstractAdapter
     }
 
     /**
-     * Remove an individual validator
+     * Clear the validators
      *
-     * @param  string $name
      * @return AbstractAdapter
      */
     public function clearValidators()
@@ -100,7 +100,7 @@ class Http extends AbstractAdapter
      * Checks if the files are valid
      *
      * @param  string|array $files (Optional) Files to check
-     * @return boolean True if all checks are valid
+     * @return bool True if all checks are valid
      */
     public function isValid($files = null)
     {
@@ -136,7 +136,7 @@ class Http extends AbstractAdapter
      * Receive the file from the client (Upload)
      *
      * @param  string|array $files (Optional) Files to receive
-     * @return boolean
+     * @return bool
      */
     public function receive($files = null)
     {
@@ -206,8 +206,8 @@ class Http extends AbstractAdapter
     /**
      * Checks if the file was already sent
      *
-     * @param  string|array $file Files to check
-     * @return boolean
+     * @param  string|array $files Files to check
+     * @return bool
      * @throws Exception\BadMethodCallException Not implemented
      */
     public function isSent($files = null)
@@ -219,7 +219,7 @@ class Http extends AbstractAdapter
      * Checks if the file was already received
      *
      * @param  string|array $files (Optional) Files to check
-     * @return boolean
+     * @return bool
      */
     public function isReceived($files = null)
     {
@@ -241,7 +241,7 @@ class Http extends AbstractAdapter
      * Checks if the file was already filtered
      *
      * @param  string|array $files (Optional) Files to check
-     * @return boolean
+     * @return bool
      */
     public function isFiltered($files = null)
     {
@@ -262,8 +262,8 @@ class Http extends AbstractAdapter
     /**
      * Has a file been uploaded ?
      *
-     * @param  array|string|null $file
-     * @return boolean
+     * @param  array|string|null $files
+     * @return bool
      */
     public function isUploaded($files = null)
     {
@@ -287,10 +287,11 @@ class Http extends AbstractAdapter
      * @param  string|array $id The upload to get the progress for
      * @return array|null
      * @throws Exception\PhpEnvironmentException whether APC nor UploadProgress extension installed
+     * @throws Exception\RuntimeException
      */
     public static function getProgress($id = null)
     {
-        if (!self::isApcAvailable() && !self::isUploadProgressAvailable()) {
+        if (!static::isApcAvailable() && !static::isUploadProgressAvailable()) {
             throw new Exception\PhpEnvironmentException('Neither APC nor UploadProgress extension installed');
         }
 
@@ -334,14 +335,14 @@ class Http extends AbstractAdapter
         }
 
         if (!empty($id)) {
-            if (self::isApcAvailable()) {
+            if (static::isApcAvailable()) {
 
-                $call = call_user_func(self::$callbackApc, ini_get('apc.rfc1867_prefix') . $id);
+                $call = call_user_func(static::$callbackApc, ini_get('apc.rfc1867_prefix') . $id);
                 if (is_array($call)) {
                     $status = $call + $status;
                 }
-            } elseif (self::isUploadProgressAvailable()) {
-                $call = call_user_func(self::$callbackUploadProgress, $id);
+            } elseif (static::isUploadProgressAvailable()) {
+                $call = call_user_func(static::$callbackUploadProgress, $id);
                 if (is_array($call)) {
                     $status = $call + $status;
                     $status['total']   = $status['bytes_total'];
@@ -360,7 +361,7 @@ class Http extends AbstractAdapter
                 $status['done']    = true;
                 $status['message'] = 'The upload has been canceled';
             } else {
-                $status['message'] = self::toByteString($status['current']) . " - " . self::toByteString($status['total']);
+                $status['message'] = static::toByteString($status['current']) . " - " . static::toByteString($status['total']);
             }
 
             $status['id'] = $id;
@@ -390,21 +391,21 @@ class Http extends AbstractAdapter
     /**
      * Checks the APC extension for progress information
      *
-     * @return boolean
+     * @return bool
      */
     public static function isApcAvailable()
     {
-        return (bool) ini_get('apc.enabled') && (bool) ini_get('apc.rfc1867') && is_callable(self::$callbackApc);
+        return (bool) ini_get('apc.enabled') && (bool) ini_get('apc.rfc1867') && is_callable(static::$callbackApc);
     }
 
     /**
      * Checks the UploadProgress extension for progress information
      *
-     * @return boolean
+     * @return bool
      */
     public static function isUploadProgressAvailable()
     {
-        return is_callable(self::$callbackUploadProgress);
+        return is_callable(static::$callbackUploadProgress);
     }
 
     /**

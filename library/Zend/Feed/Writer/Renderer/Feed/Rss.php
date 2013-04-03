@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Feed
  */
 
 namespace Zend\Feed\Writer\Renderer\Feed;
@@ -19,15 +18,13 @@ use Zend\Uri;
 use Zend\Version\Version;
 
 /**
-* @category Zend
-* @package Zend_Feed_Writer
 */
 class Rss extends Renderer\AbstractRenderer implements Renderer\RendererInterface
 {
     /**
      * Constructor
      *
-     * @param  Zend_Feed_Writer_Feed $container
+     * @param  Writer\Feed $container
      */
     public function __construct (Writer\Feed $container)
     {
@@ -37,13 +34,10 @@ class Rss extends Renderer\AbstractRenderer implements Renderer\RendererInterfac
     /**
      * Render RSS feed
      *
-     * @return Zend_Feed_Writer_Renderer_Feed_Rss
+     * @return self
      */
     public function render()
     {
-        if (!$this->container->getEncoding()) {
-            $this->container->setEncoding('UTF-8');
-        }
         $this->dom = new DOMDocument('1.0', $this->container->getEncoding());
         $this->dom->formatOutput = true;
         $this->dom->substituteEntities = false;

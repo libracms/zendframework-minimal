@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Mvc
  */
 
 namespace Zend\Mvc\View\Http;
@@ -18,11 +17,6 @@ use Zend\Mvc\MvcEvent;
 use Zend\Stdlib\ResponseInterface as Response;
 use Zend\View\Model\ViewModel;
 
-/**
- * @category   Zend
- * @package    Zend_Mvc
- * @subpackage View
- */
 class RouteNotFoundStrategy implements ListenerAggregateInterface
 {
     /**
@@ -205,8 +199,20 @@ class RouteNotFoundStrategy implements ListenerAggregateInterface
             return;
         }
 
-        $model = new ViewModel();
-        $model->setVariable('message', 'Page not found.');
+        if (!$vars instanceof ViewModel) {
+            $model = new ViewModel();
+            if (is_string($vars)) {
+                $model->setVariable('message', $vars);
+            } else {
+                $model->setVariable('message', 'Page not found.');
+            }
+        } else {
+            $model = $vars;
+            if ($model->getVariable('message') === null) {
+                $model->setVariable('message', 'Page not found.');
+            }
+        }
+
         $model->setTemplate($this->getNotFoundTemplate());
 
         // If displaying reasons, inject the reason
@@ -263,6 +269,8 @@ class RouteNotFoundStrategy implements ListenerAggregateInterface
         if (!$this->displayExceptions()) {
             return;
         }
+
+        $model->setVariable('display_exceptions', true);
 
         $exception = $e->getParam('exception', false);
         if (!$exception instanceof \Exception) {

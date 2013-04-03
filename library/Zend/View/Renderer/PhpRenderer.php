@@ -3,17 +3,18 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_View
  */
 
 namespace Zend\View\Renderer;
 
 use ArrayAccess;
+use Traversable;
 use Zend\Filter\FilterChain;
 use Zend\View\Exception;
 use Zend\View\HelperPluginManager;
+use Zend\View\Helper\AbstractHelper;
 use Zend\View\Model\ModelInterface as Model;
 use Zend\View\Renderer\RendererInterface as Renderer;
 use Zend\View\Resolver\ResolverInterface as Resolver;
@@ -26,9 +27,6 @@ use Zend\View\Variables;
  * Note: all private variables in this class are prefixed with "__". This is to
  * mark them as part of the internal implementation, and thus prevent conflict
  * with variables injected into the renderer.
- *
- * @category   Zend
- * @package    Zend_View
  */
 class PhpRenderer implements Renderer, TreeRendererInterface
 {
@@ -77,7 +75,7 @@ class PhpRenderer implements Renderer, TreeRendererInterface
     private $__helpers;
 
     /**
-     * @var Zend\Filter\FilterChain
+     * @var FilterChain
      */
     private $__filterChain;
 
@@ -90,6 +88,11 @@ class PhpRenderer implements Renderer, TreeRendererInterface
      * @var array Temporary variable stack; used when variables passed to render()
      */
     private $__varsCache = array();
+
+    /**
+     * @var array Cache for the plugin call
+     */
+    private $__pluginCache = array();
 
     /**
      * Constructor.
@@ -324,9 +327,9 @@ class PhpRenderer implements Renderer, TreeRendererInterface
     /**
      * Get plugin instance
      *
-     * @param  string     $plugin  Name of plugin to return
+     * @param  string     $name Name of plugin to return
      * @param  null|array $options Options to pass to plugin constructor (if not already instantiated)
-     * @return Helper
+     * @return AbstractHelper
      */
     public function plugin($name, array $options = null)
     {
@@ -348,11 +351,13 @@ class PhpRenderer implements Renderer, TreeRendererInterface
      */
     public function __call($method, $argv)
     {
-        $helper = $this->plugin($method);
-        if (is_callable($helper)) {
-            return call_user_func_array($helper, $argv);
+        if (!isset($this->__pluginCache[$method])) {
+            $this->__pluginCache[$method] = $this->plugin($method);
         }
-        return $helper;
+        if (is_callable($this->__pluginCache[$method])) {
+            return call_user_func_array($this->__pluginCache[$method], $argv);
+        }
+        return $this->__pluginCache[$method];
     }
 
     /**
@@ -387,7 +392,7 @@ class PhpRenderer implements Renderer, TreeRendererInterface
      *                                   ViewModel. The ViewModel must have the
      *                                   template as an option in order to be
      *                                   valid.
-     * @param  null|array|Traversable Values to use when rendering. If none
+     * @param  null|array|Traversable $values Values to use when rendering. If none
      *                                provided, uses those in the composed
      *                                variables container.
      * @return string The script output.
@@ -395,6 +400,7 @@ class PhpRenderer implements Renderer, TreeRendererInterface
      *                                   contain a template option.
      * @throws Exception\InvalidArgumentException if the values passed are not
      *                                            an array or ArrayAccess object
+     * @throws Exception\RuntimeException if the template cannot be rendered
      */
     public function render($nameOrModel, $values = null)
     {
@@ -454,9 +460,14 @@ class PhpRenderer implements Renderer, TreeRendererInterface
                     $this->__template
                 ));
             }
-            ob_start();
-            include $this->__file;
-            $this->__content = ob_get_clean();
+            try {
+                ob_start();
+                include $this->__file;
+                $this->__content = ob_get_clean();
+            } catch (\Exception $ex) {
+                ob_end_clean();
+                throw $ex;
+            }
         }
 
         $this->setVars(array_pop($this->__varsCache));
@@ -512,5 +523,4 @@ class PhpRenderer implements Renderer, TreeRendererInterface
     {
         $this->__vars = clone $this->vars();
     }
-
 }

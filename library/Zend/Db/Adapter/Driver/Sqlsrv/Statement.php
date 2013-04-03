@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Db
  */
 
 namespace Zend\Db\Adapter\Driver\Sqlsrv;
@@ -13,13 +12,9 @@ namespace Zend\Db\Adapter\Driver\Sqlsrv;
 use Zend\Db\Adapter\Driver\StatementInterface;
 use Zend\Db\Adapter\Exception;
 use Zend\Db\Adapter\ParameterContainer;
+use Zend\Db\Adapter\Profiler;
 
-/**
- * @category   Zend
- * @package    Zend_Db
- * @subpackage Adapter
- */
-class Statement implements StatementInterface
+class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
 {
 
     /**
@@ -31,6 +26,11 @@ class Statement implements StatementInterface
      * @var Sqlsrv
      */
     protected $driver = null;
+
+    /**
+     * @var Profiler\ProfilerInterface
+     */
+    protected $profiler = null;
 
     /**
      * @var string
@@ -48,7 +48,7 @@ class Statement implements StatementInterface
     protected $parameterReferences = array();
 
     /**
-     * @var Zend\Db\Adapter\ParameterContainer\ParameterContainer
+     * @var ParameterContainer
      */
     protected $parameterContainer = null;
 
@@ -59,7 +59,7 @@ class Statement implements StatementInterface
 
     /**
      *
-     * @var boolean
+     * @var bool
      */
     protected $isPrepared = false;
 
@@ -76,23 +76,47 @@ class Statement implements StatementInterface
     }
 
     /**
+     * @param Profiler\ProfilerInterface $profiler
+     * @return Statement
+     */
+    public function setProfiler(Profiler\ProfilerInterface $profiler)
+    {
+        $this->profiler = $profiler;
+        return $this;
+    }
+
+    /**
+     * @return null|Profiler\ProfilerInterface
+     */
+    public function getProfiler()
+    {
+        return $this->profiler;
+    }
+
+    /**
      *
      * One of two resource types will be provided here:
      * a) "SQL Server Connection" when a prepared statement needs to still be produced
      * b) "SQL Server Statement" when a prepared statement has been already produced
      * (there will need to already be a bound param set if it applies to this query)
      *
-     * @param resource
+     * @param resource $resource
+     * @throws Exception\InvalidArgumentException
      * @return Statement
      */
     public function initialize($resource)
     {
         $resourceType = get_resource_type($resource);
-        if ($resourceType != 'SQL Server Connection' && $resourceType != 'SQL Server Statement') {
+
+        if ($resourceType == 'SQL Server Connection') {
+            $this->sqlsrv = $resource;
+        } elseif ($resourceType == 'SQL Server Statement') {
+            $this->resource = $resource;
+            $this->isPrepared = true;
+        } else {
             throw new Exception\InvalidArgumentException('Invalid resource provided to ' . __CLASS__);
         }
 
-        $this->sqlsrv = $resource;
         return $this;
     }
 
@@ -158,6 +182,7 @@ class Statement implements StatementInterface
 
     /**
      * @param string $sql
+     * @throws Exception\RuntimeException
      * @return Statement
      */
     public function prepare($sql = null)
@@ -168,7 +193,7 @@ class Statement implements StatementInterface
         $sql = ($sql) ?: $this->sql;
 
         $pRef = &$this->parameterReferences;
-        for ($position = 0; $position < substr_count($sql, '?'); $position++) {
+        for ($position = 0, $count = substr_count($sql, '?'); $position < $count; $position++) {
             $pRef[$position] = array('', SQLSRV_PARAM_IN, null, null);
         }
 
@@ -190,6 +215,7 @@ class Statement implements StatementInterface
      * Execute
      *
      * @param  array|ParameterContainer $parameters
+     * @throws Exception\RuntimeException
      * @return Result
      */
     public function execute($parameters = null)
@@ -217,7 +243,15 @@ class Statement implements StatementInterface
         }
         /** END Standard ParameterContainer Merging Block */
 
+        if ($this->profiler) {
+            $this->profiler->profilerStart($this);
+        }
+
         $resultValue = sqlsrv_execute($this->resource);
+
+        if ($this->profiler) {
+            $this->profiler->profilerFinish();
+        }
 
         if ($resultValue === false) {
             $errors = sqlsrv_errors();
@@ -252,5 +286,4 @@ class Statement implements StatementInterface
         //    }
         //}
     }
-
 }

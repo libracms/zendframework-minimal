@@ -3,18 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Server
  */
 
 namespace Zend\Server;
 
 /**
  * Server Interface
- *
- * @category   Zend
- * @package    Zend_Server
  */
 interface Server
 {
@@ -65,7 +61,7 @@ interface Server
     /**
      * Handle a request
      *
-     * Requests may be passed in, or the server may automagically determine the
+     * Requests may be passed in, or the server may automatically determine the
      * request based on defaults. Dispatches server request to appropriate
      * method and returns a response
      *
@@ -90,7 +86,7 @@ interface Server
      *
      * Used for persistence; loads a construct as returned by {@link getFunctions()}.
      *
-     * @param  array $array
+     * @param  array $definition
      * @return void
      */
     public function loadFunctions($definition);

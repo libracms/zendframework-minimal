@@ -3,21 +3,19 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_View
  */
 
 namespace Zend\View\Helper\Placeholder\Container;
 
+use Zend\Escaper\Escaper;
 use Zend\View\Exception;
 use Zend\View\Helper\Placeholder\Registry;
+use Zend\View\Renderer\RendererInterface;
 
 /**
  * Base class for targeted placeholder helpers
- *
- * @package    Zend_View
- * @subpackage Helper
  */
 abstract class AbstractStandalone
     extends \Zend\View\Helper\AbstractHelper
@@ -27,6 +25,11 @@ abstract class AbstractStandalone
      * @var \Zend\View\Helper\Placeholder\Container\AbstractContainer
      */
     protected $container;
+
+    /**
+     * @var Escaper[]
+     */
+    protected $escapers = array();
 
     /**
      * @var \Zend\View\Helper\Placeholder\Registry
@@ -42,7 +45,7 @@ abstract class AbstractStandalone
     /**
      * Flag whether to automatically escape output, must also be
      * enforced in the child class if __toString/toString is overridden
-     * @var book
+     * @var bool
      */
     protected $autoEscape = true;
 
@@ -79,6 +82,35 @@ abstract class AbstractStandalone
     }
 
     /**
+     * Set Escaper instance
+     *
+     * @param  Escaper $escaper
+     * @return AbstractStandalone
+     */
+    public function setEscaper(Escaper $escaper)
+    {
+        $encoding = $escaper->getEncoding();
+        $this->escapers[$encoding] = $escaper;
+        return $this;
+    }
+
+    /**
+     * Get Escaper instance
+     *
+     * Lazy-loads one if none available
+     *
+     * @return mixed
+     */
+    public function getEscaper($enc = 'UTF-8')
+    {
+        $enc = strtolower($enc);
+        if (!isset($this->escapers[$enc])) {
+            $this->setEscaper(new Escaper($enc));
+        }
+        return $this->escapers[$enc];
+    }
+
+    /**
      * Set whether or not auto escaping should be used
      *
      * @param  bool $autoEscape whether or not to auto escape output
@@ -108,23 +140,16 @@ abstract class AbstractStandalone
      */
     protected function escape($string)
     {
-        $enc = 'UTF-8';
-        if ($this->view instanceof \Zend\View\Renderer\RendererInterface
+        if ($this->view instanceof RendererInterface
             && method_exists($this->view, 'getEncoding')
         ) {
-            $enc = $this->view->getEncoding();
+            $enc     = $this->view->getEncoding();
             $escaper = $this->view->plugin('escapeHtml');
             return $escaper((string) $string);
         }
-        /**
-         * bump this out to a protected method to kill the instance penalty!
-         */
-        $escaper = new \Zend\Escaper\Escaper($enc);
+
+        $escaper = $this->getEscaper();
         return $escaper->escapeHtml((string) $string);
-        /**
-         * Replaced to ensure consistent escaping
-         */
-        //return htmlspecialchars((string) $string, ENT_COMPAT, $enc);
     }
 
     /**
@@ -308,7 +333,7 @@ abstract class AbstractStandalone
     /**
      * IteratorAggregate: get Iterator
      *
-     * @return Iterator
+     * @return \Iterator
      */
     public function getIterator()
     {

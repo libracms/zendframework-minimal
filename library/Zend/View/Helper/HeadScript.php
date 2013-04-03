@@ -3,21 +3,18 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_View
  */
 
 namespace Zend\View\Helper;
 
+use stdClass;
 use Zend\View;
 use Zend\View\Exception;
 
 /**
  * Helper for setting and retrieving script elements for HTML head section
- *
- * @package    Zend_View
- * @subpackage Helper
  */
 class HeadScript extends Placeholder\Container\AbstractStandalone
 {
@@ -275,7 +272,7 @@ class HeadScript extends Placeholder\Container\AbstractStandalone
      */
     protected function isValid($value)
     {
-        if ((!$value instanceof \stdClass)
+        if ((!$value instanceof stdClass)
             || !isset($value->type)
             || (!isset($value->source) && !isset($value->attributes)))
         {
@@ -412,7 +409,7 @@ class HeadScript extends Placeholder\Container\AbstractStandalone
         $type = ($this->autoEscape) ? $this->escape($item->type) : $item->type;
         $html  = '<script type="' . $type . '"' . $attrString . '>';
         if (!empty($item->source)) {
-            $html .= PHP_EOL ;
+            $html .= PHP_EOL;
 
             if ($addScriptEscape) {
                 $html .= $indent . '    ' . $escapeStart . PHP_EOL;
@@ -421,10 +418,10 @@ class HeadScript extends Placeholder\Container\AbstractStandalone
             $html .= $indent . '    ' . $item->source;
 
             if ($addScriptEscape) {
-                $html .= $indent . '    ' . $escapeEnd . PHP_EOL;
+                $html .= $indent . PHP_EOL . '    ' . $escapeEnd;
             }
 
-            $html .= $indent;
+            $html .= PHP_EOL . $indent;
         }
         $html .= '</script>';
 
@@ -432,7 +429,7 @@ class HeadScript extends Placeholder\Container\AbstractStandalone
             && !empty($item->attributes['conditional'])
             && is_string($item->attributes['conditional']))
         {
-            $html = $indent . '<!--[if ' . $item->attributes['conditional'] . ']> ' . $html . '<![endif]-->';
+            $html = $indent . '<!--[if ' . $item->attributes['conditional'] . ']>' . $html . '<![endif]-->';
         } else {
             $html = $indent . $html;
         }
@@ -485,7 +482,7 @@ class HeadScript extends Placeholder\Container\AbstractStandalone
      */
     public function createData($type, array $attributes, $content = null)
     {
-        $data             = new \stdClass();
+        $data             = new stdClass();
         $data->type       = $type;
         $data->attributes = $attributes;
         $data->source     = $content;

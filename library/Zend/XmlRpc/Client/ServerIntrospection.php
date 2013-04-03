@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_XmlRpc
  */
 
 namespace Zend\XmlRpc\Client;
@@ -14,10 +13,6 @@ use Zend\XmlRpc\Client as XMLRPCClient;
 
 /**
  * Wraps the XML-RPC system.* introspection methods
- *
- * @category   Zend
- * @package    Zend_XmlRpc
- * @subpackage Client
  */
 class ServerIntrospection
 {
@@ -48,7 +43,7 @@ class ServerIntrospection
 
         try {
             $signatures = $this->getSignatureForEachMethodByMulticall($methods);
-        } catch (FaultException $e) {
+        } catch (Exception\FaultException $e) {
             // degrade to looping
         }
 
@@ -65,6 +60,7 @@ class ServerIntrospection
      * can significantly improve performance if present.
      *
      * @param  array $methods
+     * @throws Exception\IntrospectException
      * @return array array(array(return, param, param, param...))
      */
     public function getSignatureForEachMethodByMulticall($methods = null)
@@ -126,6 +122,7 @@ class ServerIntrospection
      * Call system.methodSignature() for the given method
      *
      * @param  array  $method
+     * @throws Exception\IntrospectException
      * @return array  array(array(return, param, param, param...))
      */
     public function getMethodSignature($method)
@@ -141,12 +138,10 @@ class ServerIntrospection
     /**
      * Call system.listMethods()
      *
-     * @param  array  $method
      * @return array  array(method, method, method...)
      */
     public function listMethods()
     {
         return $this->system->listMethods();
     }
-
 }

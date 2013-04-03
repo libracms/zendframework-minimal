@@ -3,28 +3,27 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Db
  */
 
 namespace Zend\Db\Adapter\Driver\Pgsql;
 
-use mysqli;
 use Zend\Db\Adapter\Driver\ConnectionInterface;
 use Zend\Db\Adapter\Exception;
+use Zend\Db\Adapter\Profiler;
 
-/**
- * @category   Zend
- * @package    Zend_Db
- * @subpackage Adapter
- */
-class Connection implements ConnectionInterface
+class Connection implements ConnectionInterface, Profiler\ProfilerAwareInterface
 {
     /**
      * @var Pgsql
      */
     protected $driver = null;
+
+    /**
+     * @var Profiler\ProfilerInterface
+     */
+    protected $profiler = null;
 
     /**
      * Connection parameters
@@ -41,25 +40,27 @@ class Connection implements ConnectionInterface
     /**
      * In transaction
      *
-     * @var boolean
+     * @var bool
      */
     protected $inTransaction = false;
 
     /**
      * Constructor
      *
-     * @param mysqli|array|null $connectionInfo
+     * @param resource|array|null $connectionInfo
      */
     public function __construct($connectionInfo = null)
     {
         if (is_array($connectionInfo)) {
             $this->setConnectionParameters($connectionInfo);
-        } elseif ($connectionInfo instanceof mysqli) {
+        } elseif (is_resource($connectionInfo)) {
             $this->setResource($connectionInfo);
         }
     }
 
     /**
+     * Set connection parameters
+     *
      * @param  array $connectionParameters
      * @return Connection
      */
@@ -70,6 +71,8 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Set driver
+     *
      * @param  Pgsql $driver
      * @return Connection
      */
@@ -80,6 +83,26 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * @param Profiler\ProfilerInterface $profiler
+     * @return Connection
+     */
+    public function setProfiler(Profiler\ProfilerInterface $profiler)
+    {
+        $this->profiler = $profiler;
+        return $this;
+    }
+
+    /**
+     * @return null|Profiler\ProfilerInterface
+     */
+    public function getProfiler()
+    {
+        return $this->profiler;
+    }
+
+    /**
+     * Set resource
+     *
      * @param  resource $resource
      * @return Connection
      */
@@ -90,7 +113,9 @@ class Connection implements ConnectionInterface
     }
 
     /**
-     * @return null
+     * Get current schema
+     *
+     * @return null|string
      */
     public function getCurrentSchema()
     {
@@ -106,6 +131,8 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Get resource
+     *
      * @return resource
      */
     public function getResource()
@@ -129,7 +156,7 @@ class Connection implements ConnectionInterface
         $p = $this->connectionParameters;
 
         // given a list of key names, test for existence in $p
-        $findParameterValue = function(array $names) use ($p) {
+        $findParameterValue = function (array $names) use ($p) {
             foreach ($names as $name) {
                 if (isset($p[$name])) {
                     return $p[$name];
@@ -201,6 +228,7 @@ class Connection implements ConnectionInterface
 
     /**
      * @param  string $sql
+     * @throws Exception\InvalidQueryException
      * @return resource|\Zend\Db\ResultSet\ResultSetInterface
      */
     public function execute($sql)
@@ -209,11 +237,19 @@ class Connection implements ConnectionInterface
             $this->connect();
         }
 
+        if ($this->profiler) {
+            $this->profiler->profilerStart($sql);
+        }
+
         $resultResource = pg_query($this->resource, $sql);
+
+        if ($this->profiler) {
+            $this->profiler->profilerFinish($sql);
+        }
 
         //var_dump(pg_result_status($resultResource));
 
-        // if the returnValue is something other than a mysqli_result, bypass wrapping it
+        // if the returnValue is something other than a pg result resource, bypass wrapping it
         if ($resultResource === false) {
             throw new Exception\InvalidQueryException(pg_errormessage());
         }
@@ -234,5 +270,4 @@ class Connection implements ConnectionInterface
         $result = pg_query($this->resource, 'SELECT CURRVAL(\'' . str_replace('\'', '\\\'', $name) . '\') as "currval"');
         return pg_fetch_result($result, 0, 'currval');
     }
-
 }
