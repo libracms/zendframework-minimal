@@ -30,7 +30,7 @@
         "bin-dir": "bin"
     },
     "conflict": {
-        "libra/zendframework-codeless": "self.version",
+        "libra/zendframework-codeless": "self.version"
     }
     "replace": {
         "zendframework/zendframework": "self.version",
