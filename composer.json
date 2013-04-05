@@ -31,7 +31,7 @@
     },
     "conflict": {
         "libra/zendframework-codeless": "self.version"
-    }
+    },
     "replace": {
         "zendframework/zendframework": "self.version",
         "zendframework/zend-authentication": "self.version",
